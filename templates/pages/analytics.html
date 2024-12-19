@@ -1,0 +1,246 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+  <div class="pc-container">
+    <div class="pc-content">
+      <!-- [ breadcrumb ] start -->
+      <div class="page-header">
+        <div class="page-block">
+          <div class="row align-items-center">
+            <div class="col-md-12">
+              <div class="page-header-title">
+                <h5 class="mb-0">Analytics</h5>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <ul class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                <li class="breadcrumb-item" aria-current="page">Analytics</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- [ breadcrumb ] end -->
+
+      <!-- [ Main Content ] start -->
+      <div class="row">
+        <!-- Summary Cards -->
+        <div class="col-sm-3">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-primary-subtle text-primary position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Total Sales</h6>
+                  <h3 class="mb-0 text-primary">Tsh {{ total_sales|default:"0" }}</h3>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-primary-subtle">
+                    <i class="ti ti-currency-dollar f-24 text-primary"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-warning-subtle text-warning position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Total Expenses</h6>
+                  <h3 class="mb-0 text-warning">Tsh {{ total_expenses|default:"0" }}</h3>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-warning-subtle">
+                    <i class="ti ti-receipt f-24 text-warning"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-2">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-success-subtle text-success position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Received Liters</h6>
+                  <h3 class="mb-0 text-success">{{ total_received|default:"0" }} L</h3>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-success-subtle">
+                    <i class="ti ti-droplet f-24 text-success"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-2">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-danger-subtle text-danger position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Spoiled Liters</h6>
+                  <h3 class="mb-0 text-danger">{{ total_spoiled|default:"0" }} L</h3>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-danger-subtle">
+                    <i class="ti ti-trash f-24 text-danger"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-2">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-info-subtle text-info position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Tofauti</h6>
+                  <h3 class="mb-0 text-info">Tsh {{ total_difference|default:"0" }}</h3>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-info-subtle">
+                    <i class="ti ti-calculator f-24 text-info"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="col-sm-12">
+          <div class="card hover-shadow-lg">
+            <div class="card-header d-flex align-items-center justify-content-between bg-light">
+              <h5 class="mb-0">Filter Sales Data</h5>
+              <button type="button" class="btn btn-primary btn-sm">
+                <i class="ti ti-download me-1"></i>Export Data
+              </button>
+            </div>
+            <div class="card-body">
+              <form id="filterForm" class="row g-3">
+                <div class="col-md-3">
+                  <label class="form-label">Store</label>
+                  <select class="form-select" name="shop">
+                    <option value="">All Stores</option>
+                    {% for shop in shops %}
+                      <option value="{{ shop.id }}">{{ shop.name }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">User</label>
+                  <select class="form-select" name="user">
+                    <option value="">All Users</option>
+                    {% for user in users %}
+                      <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Date From</label>
+                  <input type="date" class="form-control" name="date_from">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Date To</label>
+                  <input type="date" class="form-control" name="date_to">
+                </div>
+                <div class="col-12">
+                  <button type="submit" class="btn btn-primary">Apply Filters</button>
+                  <button type="reset" class="btn btn-light">Reset</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sales Table -->
+        <div class="col-sm-12">
+          <div class="card hover-shadow-lg">
+            <div class="card-header">
+              <h5>Sales Data</h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped" id="salesTable">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Store</th>
+                      <th>Product</th>
+                      <th>User</th>
+                      <th>Previous Balance</th>
+                      <th>Received</th>
+                      <th>Sold</th>
+                      <th>Remaining</th>
+                      <th>Spoiled</th>
+                      <th>Amount (Tsh)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for sale in sales %}
+                    <tr>
+                      <td>{{ sale.created_at|date:"Y-m-d" }}</td>
+                      <td>{{ sale.shop.name }}</td>
+                      <td>{{ sale.product.name }}</td>
+                      <td>{{ sale.user.username }}</td>
+                      <td>{{ sale.remainingJana }}</td>
+                      <td>{{ sale.received }}</td>
+                      <td>{{ sale.given }}</td>
+                      <td>{{ sale.remaining }}</td>
+                      <td>{{ sale.spoiled }}</td>
+                      <td>{{ sale.amount }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- [ Main Content ] end -->
+    </div>
+  </div>
+{% endblock content %}
+
+{% block extra_javascript %}
+<script>
+  $(document).ready(function() {
+    // Initialize DataTable
+    var table = $('#salesTable').DataTable({
+      dom: 'Bfrtip',
+      buttons: [
+        'copy', 'csv', 'excel', 'pdf', 'print'
+      ],
+      pageLength: 10,
+      order: [[0, 'desc']]
+    });
+
+    // Handle filter form submission
+    $('#filterForm').on('submit', function(e) {
+      e.preventDefault();
+      
+      $.ajax({
+        url: '{% url "analytics" %}',
+        data: $(this).serialize(),
+        success: function(response) {
+          // Update the table and summary cards with the filtered data
+          // This will be handled by the backend
+          location.reload();
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

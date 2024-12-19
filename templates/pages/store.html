@@ -1,0 +1,267 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Store Transfers{% endblock title %}
+
+{% block content %}
+<div class="pc-container">
+  <div class="pc-content">
+    <!-- [ breadcrumb ] start -->
+    <div class="page-header">
+      <div class="page-block">
+        <div class="row align-items-center">
+          <div class="col-md-12">
+            <div class="page-header-title">
+              <h5 class="mb-0">Store Transfers</h5>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <ul class="breadcrumb mb-0">
+              <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+              <li class="breadcrumb-item" aria-current="page">Store</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- [ breadcrumb ] end -->
+
+    <!-- [ Summary Cards ] start -->
+    <div class="row">
+      <div class="col-md-6 col-xl-6">
+        <div class="card hover-shadow-lg">
+          <div class="card-body position-relative overflow-hidden">
+            <div class="badge bg-primary-subtle text-primary position-absolute end-0 top-0 m-3">Total</div>
+            <h6 class="mb-4 text-muted">Total Received Liters</h6>
+            <div class="row d-flex align-items-center">
+              <div class="col-9">
+                <h3 class="f-w-300 d-flex align-items-center m-b-0 text-primary">
+                  <i class="ti ti-droplet f-24 me-2"></i>
+                  {{ total_received|floatformat:2 }}
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-xl-6">
+        <div class="card hover-shadow-lg">
+          <div class="card-body position-relative overflow-hidden">
+            <div class="badge bg-success-subtle text-success position-absolute end-0 top-0 m-3">Total</div>
+            <h6 class="mb-4 text-muted">Total Given Liters</h6>
+            <div class="row d-flex align-items-center">
+              <div class="col-9">
+                <h3 class="f-w-300 d-flex align-items-center m-b-0 text-success">
+                  <i class="ti ti-arrow-up-right f-24 me-2"></i>
+                  {{ total_given|floatformat:2 }}
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- [ Summary Cards ] end -->
+
+    <!-- [ Main Content ] start -->
+    <div class="row">
+      <div class="col-sm-12">
+        <!-- [ Transfer Form Card ] start -->
+        <div class="card hover-shadow-lg">
+          <div class="card-header d-flex align-items-center justify-content-between bg-light">
+            <h5 class="mb-0">Transfer Details</h5>
+            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#transferModal">
+              <i class="ti ti-plus me-1"></i>New Transfer
+            </button>
+          </div>
+          <div class="card-body">
+            <form id="transferForm" method="post">
+              {% csrf_token %}
+              <div class="row">
+                <!-- Left side -->
+                <div class="col-md-6 border-end">
+                  <div class="mb-3">
+                    <label class="form-label">Received Liters</label>
+                    <input type="number" class="form-control" name="received_liters" step="0.01">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">From Shop</label>
+                    <select class="form-select" name="from_shop">
+                      <option value="">Select Shop</option>
+                      {% for shop in shops %}
+                        <option value="{{ shop.id }}">{{ shop.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                
+                <!-- Right side -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Given Liters</label>
+                    <input type="number" class="form-control" name="given_liters" step="0.01">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">To Shop</label>
+                    <select class="form-select" name="to_shop">
+                      <option value="">Select Shop</option>
+                      {% for shop in shops %}
+                        <option value="{{ shop.id }}">{{ shop.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="text-center mt-3">
+                <button type="submit" class="btn btn-primary">Submit Transfer</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- [ Transfer Form Card ] end -->
+
+        <!-- [ Table Card ] start -->
+        <div class="card hover-shadow-lg">
+          <div class="card-header d-flex align-items-center justify-content-between bg-light">
+            <h5 class="mb-0">Transfer History</h5>
+            <div class="input-group w-50">
+              <input type="text" class="form-control form-control-sm" id="searchInput" placeholder="Search transfers...">
+              <button class="btn btn-outline-secondary btn-sm" type="button">
+                <i class="ti ti-search"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="bg-light">
+                  <tr>
+                    <th class="border-0">Date</th>
+                    <th class="border-0">Type</th>
+                    <th class="border-0">Liters</th>
+                    <th class="border-0">Description</th>
+                    <th class="border-0 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for transfer in transfers %}
+                  <tr>
+                    <td>{{ transfer.date_created|date:"Y-m-d H:i" }}</td>
+                    <td>
+                      {% if transfer.type == 'Received' %}
+                      <span class="badge bg-success-subtle text-success">{{ transfer.type }}</span>
+                      {% else %}
+                      <span class="badge bg-primary-subtle text-primary">{{ transfer.type }}</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ transfer.received_liters }}</td>
+                    <td>{{ transfer.description }}</td>
+                    <td class="text-center">
+                      <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-light" title="Edit">
+                          <i class="ti ti-edit text-primary"></i>
+                        </button>
+                        <button type="button" class="btn btn-light" title="Delete">
+                          <i class="ti ti-trash text-danger"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- [ Table Card ] end -->
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+document.getElementById('transferForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const receivedLiters = formData.get('received_liters');
+    const givenLiters = formData.get('given_liters');
+    const fromShop = formData.get('from_shop');
+    const toShop = formData.get('to_shop');
+
+    // Validate that at least one operation is being submitted
+    if ((!receivedLiters || !fromShop) && (!givenLiters || !toShop)) {
+        alert('Please fill in either received liters with from shop, or given liters with to shop');
+        return;
+    }
+
+    // Validate received liters submission
+    if (receivedLiters && !fromShop) {
+        alert('Please select the shop from where liters were received');
+        return;
+    }
+
+    // Validate given liters submission
+    if (givenLiters && !toShop) {
+        alert('Please select the shop to where liters were given');
+        return;
+    }
+
+    // Get CSRF token
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    // Create URL-encoded form data
+    const urlEncodedData = new URLSearchParams(formData).toString();
+    
+    fetch('{% url "store" %}', {
+        method: 'POST',
+        body: urlEncodedData,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrftoken
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Transfer recorded successfully!');
+            location.reload();
+        } else {
+            alert('Error: ' + (data.message || 'Unknown error occurred'));
+            console.error('Error:', data);
+        }
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        alert('Error submitting form: ' + error.message);
+    });
+});
+
+// Search functionality
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchText = this.value.toLowerCase();
+    const table = document.getElementById('transferTable');
+    const rows = table.getElementsByTagName('tr');
+
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const cells = row.getElementsByTagName('td');
+        let found = false;
+
+        for (let j = 0; j < cells.length; j++) {
+            const cellText = cells[j].textContent.toLowerCase();
+            if (cellText.includes(searchText)) {
+                found = true;
+                break;
+            }
+        }
+
+        row.style.display = found ? '' : 'none';
+    }
+});
+</script>
+{% endblock javascripts %}

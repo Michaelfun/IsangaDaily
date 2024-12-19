@@ -1,0 +1,123 @@
+{% load i18n static home %}
+
+
+<nav class="pc-sidebar">
+  <div class="navbar-wrapper">
+    <div class="m-header">
+      <a href="{% url "index" %}" class="b-brand text-primary">
+        <!-- ========   Change your logo from here   ============ -->
+        <img src="{% static 'assets/images/logo-white.svg' %}" class="img-fluid" alt="logo">
+      </a>
+    </div>
+    <div class="navbar-content">
+      <ul class="pc-navbar">
+
+
+        {% admin_get_menu as app_list %}
+        {% if app_list %}
+          <li class="pc-item pc-caption">
+            <label>Admin</label>
+          </li>
+          {% for app in app_list %}
+            {% if app.has_perms and not app.pinned %}
+              <li class="pc-item pc-hasmenu">
+                <a data-bs-toggle="collapse" href="#apps" class="pc-link" aria-controls="apps" role="button" aria-expanded="false">
+                  <span class="pc-micon">
+                    <i data-feather="lock"></i>
+                  </span>
+                  <span class="pc-mtext">{{ app.label|slice:10 }}{% if app.label|length > 10 %}..{% endif %}</span><span class="pc-arrow"><i class="ti ti-chevron-right"></i></span>
+                </a>
+                {% if app.models %}
+                  <ul class="pc-submenu">
+                    {% for model in app.models %}
+                      {% if model.url %}
+                        <li class="pc-item">
+                          <a class="pc-link" href="{{ model.url }}">
+                            {{ model.label }}
+                          </a>
+                        </li>
+                      {% else %}
+                        <li class="pc-item">{{ model.label }}</li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </li>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+
+
+
+        <li class="pc-item pc-caption">
+          <label>Navigation</label>
+        </li>
+        <li class="pc-item">
+          <a href="{% url 'index' %}" class="pc-link">
+            <span class="pc-micon">
+              <i data-feather="bar-chart"></i>
+            </span>
+            <span class="pc-mtext">Dashboard</span>
+          </a>
+        </li>
+        <li class="pc-item">
+          <a href="{% url 'sales' %}" class="pc-link">
+            <span class="pc-micon"><i data-feather="clipboard"></i></span>
+            <span class="pc-mtext">Sales
+            </span>
+          </a>
+        </li>
+        <li class="pc-item">
+          <a href="{% url 'store' %}" class="pc-link">
+            <span class="pc-micon"><i data-feather="feather"></i></span>
+            <span class="pc-mtext">Store</span>
+          </a>
+        </li>
+        <li class="pc-item">
+          <a href="{% url 'analytics' %}" class="pc-link">
+            <span class="pc-micon"><i data-feather="book"></i></span>
+            <span class="pc-mtext">Analytic</span>
+          </a>
+        </li>
+        <li class="pc-item">
+          <a href="{% url 'supplier' %}" class="pc-link">
+            <span class="pc-micon"><i data-feather="droplet"></i></span>
+            <span class="pc-mtext">Supplier</span>
+          </a>
+        </li>
+        <li class="pc-item pc-caption">
+          <label>Pages</label>
+          <i data-feather="monitor"></i>
+        </li> 
+        {% if not request.user.is_authenticated %}
+        <li class="pc-item">
+          <a href="{% url "login" %}" class="pc-link">
+            <span class="pc-micon"><i data-feather="lock"></i></span>
+            <span class="pc-mtext">Login</span>
+          </a>
+        </li>
+        <li class="pc-item">
+          <a href="{% url "register" %}" class="pc-link">
+            <span class="pc-micon"><i data-feather="user-plus"></i></span>
+            <span class="pc-mtext">Register</span>
+          </a>
+        </li>
+        {% else %}
+        <li class="pc-item">
+          <a href="{% url "logout" %}" class="pc-link">
+            <span class="pc-micon">
+              <svg class="pc-icon me-2">
+                <use xlink:href="#custom-logout-1-outline"></use>
+              </svg>
+            </span>
+            <span class="pc-mtext">Logout</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+      <div class="card pc-user-card my-3 bg-white bg-opacity-10">
+        
+      </div>
+    </div>
+  </div>
+</nav>

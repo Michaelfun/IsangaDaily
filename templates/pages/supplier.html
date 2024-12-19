@@ -1,0 +1,340 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Supplier Data{% endblock title %}
+
+{% block content %}
+<div class="pc-container">
+    <div class="pc-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col-md-12">
+                    <div class="page-header-title">
+                        <h5 class="m-b-10">Supplier Data</h5>
+                    </div>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                        <li class="breadcrumb-item" aria-current="page">Supplier Data</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <!-- [ Statistics Cards ] start -->
+            <div class="col-md-6 col-xl-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="mb-4">Total Liters Supplied</h6>
+                        <div class="row d-flex align-items-center">
+                            <div class="col-9">
+                                <h3 class="f-w-300 d-flex align-items-center">
+                                    <i class="ti ti-droplet text-primary f-30 m-r-10"></i>{{ total_liters|floatformat:2 }}L
+                                </h3>
+                            </div>
+                            <div class="col-3 text-end">
+                                <p class="mb-0 text-success">
+                                    <span class="badge bg-success-subtle">
+                                        <i class="ti ti-trending-up"></i> {{ liter_growth }}%
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="mb-4">Total Revenue Generated</h6>
+                        <div class="row d-flex align-items-center">
+                            <div class="col-9">
+                                <h3 class="f-w-300 d-flex align-items-center">
+                                    <i class="ti ti-currency-dollar text-success f-30 m-r-10"></i>Tsh {{ total_revenue|floatformat:2 }}
+                                </h3>
+                            </div>
+                            <div class="col-3 text-end">
+                                <p class="mb-0 text-success">
+                                    <span class="badge bg-success-subtle">
+                                        <i class="ti ti-trending-up"></i> {{ revenue_growth }}%
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 col-xl-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="mb-4">Total Suppliers</h6>
+                        <div class="row d-flex align-items-center">
+                            <div class="col-9">
+                                <h3 class="f-w-300 d-flex align-items-center">
+                                    <i class="ti ti-users text-info f-30 m-r-10"></i>{{ total_suppliers }}
+                                </h3>
+                            </div>
+                            <div class="col-3 text-end">
+                                <p class="mb-0 text-info">Active Today</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- [ Statistics Cards ] end -->
+
+            <!-- [ Chart Section ] start -->
+            <div class="col-xl-8 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Supply Trends</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-link p-0 text-muted dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="ti ti-calendar"></i> {{ current_period }}
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="?period=week">This Week</a>
+                                <a class="dropdown-item" href="?period=month">This Month</a>
+                                <a class="dropdown-item" href="?period=year">This Year</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="supply-trend-chart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Top Suppliers</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="top-suppliers-chart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- [ Chart Section ] end -->
+
+            <!-- [ Filter Table ] start -->
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Supply Records</h5>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="supplier-search" placeholder="Search supplier...">
+                            </div>
+                            <div class="col-md-2">
+                                <input type="date" class="form-control" id="start-date" name="start_date" value="{{ start_date|date:'Y-m-d' }}">
+                            </div>
+                            <div class="col-md-2">
+                                <input type="date" class="form-control" id="end-date" name="end_date" value="{{ end_date|date:'Y-m-d' }}">
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="month-filter">
+                                    <option value="">All Months</option>
+                                    {% for month in months %}
+                                    <option value="{{ month.0 }}">{{ month.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary" onclick="applyFilters()">
+                                    <i class="ti ti-filter me-1"></i>Apply Filters
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="supplier-table">
+                                <thead>
+                                    <tr>
+                                        <th>Supplier Name</th>
+                                        <th>Liters</th>
+                                        <th>Revenue</th>
+                                        <th>Date</th>
+                                        <th>Staff</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in supplier_data %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar avatar-blue">
+                                                    <span>{{ record.name|make_list|first }}</span>
+                                                </div>
+                                                <div class="ms-3">
+                                                    <h6 class="mb-0">{{ record.name }}</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ record.liter|floatformat:2 }}L</td>
+                                        <td>Tsh {{ record.revenue|floatformat:2 }}</td>
+                                        <td>{{ record.receivedtime|date:"M d, Y H:i" }}</td>
+                                        <td>{{ record.staff.username }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- [ Filter Table ] end -->
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="{% static 'assets/js/plugins/apexcharts.min.js' %}"></script>
+<script>
+    // Supply Trend Chart
+    var supplyOptions = {
+        series: [{
+            name: 'Liters Supplied',
+            data: {{ supply_trend_data|safe }}
+        }],
+        chart: {
+            height: 350,
+            type: 'area',
+            toolbar: {
+                show: false
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'smooth'
+        },
+        xaxis: {
+            categories: {{ supply_trend_labels|safe }},
+            labels: {
+                style: {
+                    colors: '#adb5bd'
+                }
+            }
+        },
+        yaxis: {
+            labels: {
+                style: {
+                    colors: '#adb5bd'
+                }
+            }
+        },
+        colors: ['#7267EF'],
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.7,
+                opacityTo: 0.9,
+                stops: [0, 90, 100]
+            }
+        },
+        tooltip: {
+            x: {
+                format: 'dd/MM/yy'
+            },
+        },
+    };
+    var supplyChart = new ApexCharts(document.querySelector("#supply-trend-chart"), supplyOptions);
+    supplyChart.render();
+
+    // Top Suppliers Chart
+    var topSuppliersOptions = {
+        series: {{ top_suppliers_data|safe }},
+        chart: {
+            type: 'donut',
+            height: 350
+        },
+        labels: {{ top_suppliers_labels|safe }},
+        colors: ['#7267EF', '#3EC59D', '#FFA21D', '#FF3366', '#00B8D9'],
+        legend: {
+            position: 'bottom'
+        },
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                chart: {
+                    width: 200
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }]
+    };
+    var topSuppliersChart = new ApexCharts(document.querySelector("#top-suppliers-chart"), topSuppliersOptions);
+    topSuppliersChart.render();
+
+    // Filter functionality
+    function applyFilters() {
+        var supplierSearch = document.getElementById('supplier-search').value.toLowerCase();
+        var monthFilter = document.getElementById('month-filter').value;
+        var startDate = document.getElementById('start-date').value;
+        var endDate = document.getElementById('end-date').value;
+        
+        // Redirect with filter parameters
+        var url = new URL(window.location.href);
+        url.searchParams.set('start_date', startDate);
+        url.searchParams.set('end_date', endDate);
+        if (monthFilter) {
+            url.searchParams.set('month', monthFilter);
+        } else {
+            url.searchParams.delete('month');
+        }
+        
+        // Apply text search filter locally
+        var table = document.getElementById('supplier-table');
+        var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+        for (var i = 0; i < rows.length; i++) {
+            var supplierName = rows[i].getElementsByTagName('td')[0].textContent.toLowerCase();
+            var date = new Date(rows[i].getElementsByTagName('td')[3].textContent);
+            var month = date.getMonth() + 1;
+            
+            var showRow = true;
+            if (supplierSearch && !supplierName.includes(supplierSearch)) {
+                showRow = false;
+            }
+            if (monthFilter && month != monthFilter) {
+                showRow = false;
+            }
+            
+            rows[i].style.display = showRow ? '' : 'none';
+        }
+        
+        // Reload page with new date filters
+        if (startDate || endDate) {
+            window.location.href = url.toString();
+        }
+    }
+
+    // Initialize date inputs with URL parameters
+    document.addEventListener('DOMContentLoaded', function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var startDate = urlParams.get('start_date');
+        var endDate = urlParams.get('end_date');
+        var month = urlParams.get('month');
+        
+        if (startDate) {
+            document.getElementById('start-date').value = startDate;
+        }
+        if (endDate) {
+            document.getElementById('end-date').value = endDate;
+        }
+        if (month) {
+            document.getElementById('month-filter').value = month;
+        }
+    });
+</script>
+{% endblock extra_js %}

@@ -1,0 +1,849 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Sales{% endblock title %}
+
+{% block content %}
+<style>
+  /* General Styles */
+  .pc-container {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  /* Card Styles */
+  .card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+    background: #fff;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .card-header {
+    background: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    border-radius: 15px 15px 0 0 !important;
+  }
+
+  .card-header h4 {
+    margin: 0;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+
+  .card-body {
+    padding: 25px;
+  }
+
+  /* Form Controls */
+  .form-control, .form-select {
+    border-radius: 10px;
+    border: 1px solid #e0e6ed;
+    padding: 12px 15px;
+    font-size: 14px;
+    transition: all 0.3s;
+    background-color: #f8f9fa;
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: #4680ff;
+    box-shadow: 0 0 0 0.2rem rgba(70, 128, 255, 0.1);
+    background-color: #fff;
+  }
+
+  /* Table Styles */
+  .table {
+    margin-bottom: 0;
+  }
+
+  .table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e3e6f0;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding: 15px;
+    color: #2c3e50;
+  }
+
+  .table td {
+    padding: 15px;
+    vertical-align: middle;
+  }
+
+  /* Button Styles */
+  .btn-primary {
+    background: linear-gradient(45deg, #4680ff, #6c9fff);
+    border: none;
+    padding: 12px 25px;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(45deg, #3674ff, #5a91ff);
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(70, 128, 255, 0.2);
+  }
+
+  /* Summary Cards */
+  .summary-card {
+    background: linear-gradient(45deg, #4680ff, #6c9fff);
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+    margin-top: 25px;
+    box-shadow: 0 5px 15px rgba(70, 128, 255, 0.2);
+  }
+
+  .final-summary {
+    background: linear-gradient(45deg, #2ed8b6, #59e0c5);
+    box-shadow: 0 5px 15px rgba(46, 216, 182, 0.2);
+  }
+
+  /* Select2 Customization */
+  .select2-container--default .select2-selection--single {
+    height: 45px;
+    padding: 8px 15px;
+    border: 1px solid #e0e6ed;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 43px;
+    right: 10px;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #2c3e50;
+    line-height: 28px;
+  }
+
+  .select2-dropdown {
+    border: 1px solid #e0e6ed;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  }
+
+  .select2-search--dropdown .select2-search__field {
+    padding: 8px;
+    border-radius: 5px;
+  }
+
+  .select2-results__option {
+    padding: 10px 15px;
+  }
+
+  .select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #edf0f5;
+  }
+
+  /* Supplier Form */
+  #supplierForm {
+    gap: 20px !important;
+  }
+
+  #supplierForm .form-control {
+    height: 45px;
+  }
+
+  /* Responsive Spacing */
+  @media (max-width: 768px) {
+    .pc-container {
+      padding: 10px;
+    }
+    
+    .card-header, .card-body {
+      padding: 20px;
+    }
+    
+    #supplierForm {
+      flex-direction: column;
+    }
+    
+    #supplierForm .btn {
+      width: 100%;
+    }
+  }
+
+  /* Animation */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  /* Updated Supplier Form Styles */
+  .supplier-form-container {
+    padding: 0 15px;
+  }
+
+  .supplier-input-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .supplier-field {
+    flex: 2;
+    position: relative;
+  }
+
+  .liter-field {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .submit-field {
+    flex: 0 0 auto;
+  }
+
+  /* Select2 Additional Customization */
+  /* .select2-container {
+    width: 100% !important;
+  }
+
+  .select2-selection__placeholder {
+    color: #6c757d !important;
+  }
+
+  .select2-container--default .select2-selection--single {
+    height: 45px;
+    display: flex;
+    align-items: center;
+  } */
+
+  /* .select2-container--default .select2-selection--single .select2-selection__rendered {
+    padding-left: 5px;
+  }
+
+  .select2-container--default .select2-results__option {
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+  }
+
+  .select2-container--default .select2-results__option .supplier-option {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .select2-container--default .select2-results__option .supplier-name {
+    font-weight: 500;
+  }
+
+  .select2-container--default .select2-results__option .supplier-liter {
+    font-size: 0.85em;
+    color: #6c757d;
+  } */
+</style>
+
+<div class="pc-container">
+    <div class="pc-content">
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <div class="page-header-title">
+                            <h5 class="mb-0" id="sales">Sales</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                            <li class="breadcrumb-item active">Sales</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Pokea</h4>
+                </div>
+                <div class="card-body">
+                    <div class="supplier-form-container">
+                        <form id="supplierForm">
+                            {% csrf_token %}
+                            <div class="supplier-input-group">
+                                <div class="supplier-field">
+                                    <select class="form-select" id="supplierSelect" required>
+                                        <option value=""></option>
+                                        {% for supplier in suppliers %}
+                                            <option value="{{ supplier.id }}" data-liter="0">
+                                                {{ supplier.username }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="liter-field">
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="literAmount" 
+                                           placeholder="Lita" 
+                                           required>
+                                </div>
+                                <div class="submit-field">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-check me-2"></i>Wasilisha
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4>Daily Sales Collection</h4>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-light-primary text-primary me-2">{{ user.userprofile.shop.name }}</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <form id="salesForm">
+                                {% csrf_token %}
+                                <div class="table-responsive">
+                                    <table class="table" id="productsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>MAELEZO</th>
+                                                <th>BEI</th>
+                                                <th>BAKI/JANA</th>
+                                                <th>POKELEWA</th>
+                                                <th>TOKA</th>
+                                                <th>JUMLA</th>
+                                                <th>UZWA</th>
+                                                <th>HARIBIKA</th>
+                                                <th>BAKI</th>
+                                                <th>FEDHA</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for product in products %}
+                                            <tr data-product-id="{{ product.id }}">
+                                                <td>{{ product.name }}</td>
+                                                <td><input type="number" class="form-control price" data-product-id="{{ product.id }}" value="{{ product.default_price }}"></td>
+                                                <td><input type="number" class="form-control previous-balance"  value="{{ product.remaining }}"></td>
+                                                <td><input type="number" class="form-control received"></td>
+                                                <td><input type="number" class="form-control sold" ></td>
+                                                <td><input type="number" class="form-control total" readonly></td>
+                                                <td><input type="number" class="form-control sold-amount"></td>
+                                                <td><input type="number" class="form-control damaged" ></td>
+                                                <td><input type="number" class="form-control remaining-balance" readonly></td>
+                                                <td><input type="number" class="form-control cash-amount" readonly></td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="summary-card">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h4>Jumla ya Fedha: <span id="totalFedha">0.00</span> TZS</h4>
+                                        <h5>Kwa Maneno: <span id="totalFedhaWords">Sifuri</span></h5>
+                                    </div>
+                                </div>
+
+                                <div class="summary-card mt-3">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label class="text-white mb-2">Fedha Zilizohesabiwa:</label>
+                                                <input type="number" class="form-control" id="countedMoney" placeholder="Ingiza kiasi kilichohesabiwa">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="d-flex justify-content-between align-items-center h-100">
+                                                <h4 class="mb-0">Tofauti:</h4>
+                                                <h4 class="mb-0"><span id="difference">0.00</span> TZS</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-end mt-3">
+                                    <button type="submit" class="btn btn-primary">Submit Sales</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card expenses-card">
+                        <div class="card-header">
+                            <h4>Matumizi</h4>
+                        </div>
+                        <div class="card-body">
+                            <form id="expenses">
+                                {% csrf_token %}
+                                <div class="table-responsive">
+                                    <table class="table expenses-table">
+                                        <thead>
+                                            <tr>
+                                                <th>MATUMIZI</th>
+                                                {% for expense in expense_purpose %}
+                                                  <th>{{ expense.name }}</th>
+                                                {% endfor %}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>FEDHA</td>
+                                                {% for expense in expense_purpose %}
+                                                <td><input type="number" class="form-control expense-input" data-expense-purpose="{{ expense.name }}"  data-expense-id="{{ expense.id }}"></td>
+                                                {% endfor %}
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="summary-card">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h4>Jumla ya Matumizi: <span id="jumlaYaMatumizi">0.00</span> TZS</h4>
+                                    </div>
+                                </div>
+
+                                <div class="text-end mt-3">
+                                    <button type="submit" class="btn btn-primary">Submit Expenses</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="summary-card final-summary">
+                        <div class="row text-white">
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between text-white align-items-center">
+                                    <h4>Jumla ya Fedha:</h4>
+                                    <h4><span id="finalTotalFedha">0.00</span> TZS</h4>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h4>Jumla ya Matumizi:</h4>
+                                    <h4><span id="finalJumlaMatumizi">0.00</span> TZS</h4>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h4>Salio:</h4>
+                                    <h4><span id="finalAmount">0.00</span> TZS</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('salesForm');
+      const productsTable = document.getElementById('productsTable');
+
+      // Function to convert number to Swahili words
+      function numberToWords(num) {
+          const ones = ['', 'Moja', 'Mbili', 'Tatu', 'Nne', 'Tano', 'Sita', 'Saba', 'Nane', 'Tisa'];
+          const tens = ['', '', 'Ishirini', 'Thelathini', 'Arobaini', 'Hamsini', 'Sitini', 'Sabini', 'Themanini', 'Tisini'];
+          const thousands = ['', 'Elfu', 'Milioni', 'Bilioni'];
+
+          function convertLessThanThousand(n) {
+              if (n === 0) return '0';
+              
+              let words = '';
+              if (n >= 100) {
+                  words += ones[Math.floor(n / 100)] + ' Mia ';
+                  n %= 100;
+              }
+
+              if (n >= 20) {
+                  words += tens[Math.floor(n / 10)] + ' ';
+                  n %= 10;
+              } else if (n >= 10) {
+                  const teens = ['Kumi', 'Kumi na Moja', 'Kumi na Mbili', 'Kumi na Tatu', 'Kumi na Nne', 
+                                'Kumi na Tano', 'Kumi na Sita', 'Kumi na Saba', 'Kumi na Nane', 'Kumi na Tisa'];
+                  words += teens[n - 10];
+                  n = 0;
+              }
+
+              if (n > 0) {
+                  words += ones[n] + ' ';
+              }
+
+              return words.trim();
+          }
+
+          function convertNumber(num) {
+              if (num === 0) return 'Sifuri';
+
+              let words = '';
+              let scale = 0;
+
+              while (num > 0) {
+                  if (num % 1000 !== 0) {
+                      let segment = convertLessThanThousand(num % 1000);
+                      if (scale > 0) {
+                          segment += ' ' + thousands[scale] + ' ';
+                      }
+                      words = segment + words;
+                  }
+                  num = Math.floor(num / 1000);
+                  scale++;
+              }
+
+              return words.trim();
+          }
+
+          return convertNumber(Math.round(num));
+      }
+
+      // Calculate totals for a specific row
+      function updateRow(row) {
+          const bakiJana = parseFloat(row.querySelector('.previous-balance').value) || 0;
+          const pokelewa = parseFloat(row.querySelector('.received').value) || 0;
+          const toka = parseFloat(row.querySelector('.sold').value) || 0;
+          const uzwa = parseFloat(row.querySelector('.sold-amount').value) || 0;
+          const haribika = parseFloat(row.querySelector('.damaged').value) || 0;
+          const price = parseFloat(row.querySelector('.price').value) || 0;
+
+          // Calculate Jumla
+          let jumla = bakiJana + pokelewa - toka;
+          row.querySelector('.total').value = jumla.toFixed(2);
+
+          // Calculate Baki
+          let baki = jumla - (uzwa + haribika);
+          row.querySelector('.remaining-balance').value = baki.toFixed(2);
+
+          // Calculate Fedha
+          let fedha = uzwa * price;
+          row.querySelector('.cash-amount').value = fedha.toFixed(2);
+
+          updateGrandTotals();
+      }
+
+      // Update all rows and the totals section
+      function updateGrandTotals() {
+          let grandTotal = 0;
+
+          document.querySelectorAll('#productsTable tbody tr').forEach(row => {
+              const fedha = parseFloat(row.querySelector('.cash-amount').value) || 0;
+              grandTotal += fedha;
+          });
+
+          document.getElementById('totalFedha').textContent = grandTotal.toFixed(2);
+          document.getElementById('totalFedhaWords').textContent = numberToWords(grandTotal);
+      }
+
+      // Add event listeners to inputs
+      document.querySelectorAll('#productsTable tbody input').forEach(input => {
+          input.addEventListener('input', function() {
+              const row = this.closest('tr');
+              updateRow(row);
+          });
+      });
+
+      // Form submission handler
+      form.addEventListener('submit', function(event) {
+          event.preventDefault();
+
+          const products = [];
+          const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+          // Collect product data
+          document.querySelectorAll('#productsTable tbody tr').forEach(row => {
+              const productData = {
+                  productId: row.querySelector('.price').getAttribute('data-product-id'),
+                  price: parseFloat(row.querySelector('.price').value) || 0,
+                  previousBalance: parseFloat(row.querySelector('.previous-balance').value) || 0,
+                  received: parseFloat(row.querySelector('.received').value) || 0,
+                  sold: parseFloat(row.querySelector('.sold').value) || 0,
+                  total: parseFloat(row.querySelector('.total').value) || 0,
+                  soldAmount: parseFloat(row.querySelector('.sold-amount').value) || 0,
+                  damaged: parseFloat(row.querySelector('.damaged').value) || 0,
+                  remainingBalance: parseFloat(row.querySelector('.remaining-balance').value) || 0,
+                  cashAmount: parseFloat(row.querySelector('.cash-amount').value) || 0
+              };
+              products.push(productData);
+          });
+
+          // Create FormData object
+          const formData = new FormData();
+          formData.append('totalFedha', document.getElementById('totalFedha').textContent);
+          formData.append('totalFedhaWords', document.getElementById('totalFedhaWords').textContent);
+          formData.append('countedMoney', document.getElementById('countedMoney').value);
+          formData.append('difference', document.getElementById('difference').textContent);
+          
+          // Add each product to the form data
+          products.forEach((product, index) => {
+              formData.append(`products[${index}]`, JSON.stringify(product));
+          });
+
+          // Submit data via fetch
+          fetch('{% url "submit_sales" %}', {
+              method: 'POST',
+              headers: {
+                  'X-CSRFToken': csrfToken
+              },
+              body: formData
+          })
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
+          })
+          .then(data => {
+              if (data.status === 'success') {
+                  alert('Sales data submitted successfully!');
+                  // Reset the form
+                  form.reset();
+                  // Reset the calculated fields
+                  document.querySelectorAll('.total, .remaining-balance, .cash-amount').forEach(input => {
+                      input.value = '0.00';
+                  });
+                  document.getElementById('totalFedha').textContent = '0.00';
+                  document.getElementById('totalFedhaWords').textContent = 'Sifuri';
+                  document.getElementById('countedMoney').value = '';
+                  document.getElementById('difference').textContent = '0.00';
+              } else {
+                  alert('Error submitting sales data: ' + data.message);
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('An error occurred while submitting the form. Please try again.');
+          });
+      });
+
+    const expenseInputs = document.querySelectorAll('.expense-input');
+    const jumlaYaMatumiziElement = document.getElementById('jumlaYaMatumizi');
+    const finalAmountElement = document.getElementById('finalAmount');
+    const jumlaYaFedhaElement = document.getElementById('totalFedha');
+    const expenseForm = document.getElementById('expenses');
+
+    // Function to calculate totals dynamically
+    function calculateExpenseTotals() {
+        let jumlaYaMatumizi = 0;
+
+        expenseInputs.forEach(input => {
+            const value = parseFloat(input.value) || 0;
+            jumlaYaMatumizi += value;
+        });
+
+        const jumlaYaFedha = parseFloat(jumlaYaFedhaElement.textContent) || 0;
+        const finalAmount = jumlaYaFedha - jumlaYaMatumizi;
+
+        // Update totals on the UI
+        jumlaYaMatumiziElement.textContent = jumlaYaMatumizi.toFixed(2) + ' TZS';
+        finalAmountElement.textContent = finalAmount.toFixed(2) + ' TZS';
+    }
+
+    // Add event listeners for inputs
+    expenseInputs.forEach(input => {
+        input.addEventListener('input', calculateExpenseTotals);
+    });
+
+    // Form submission handler
+    expenseForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const expenseData = [];
+        expenseInputs.forEach(input => {
+            const row = input.closest('tr');
+            const purpose = input.dataset.expensePurpose; // Retrieve purpose directly from the table
+            const value = parseFloat(input.value) || 0;
+
+            expenseData.push({
+                purpose: purpose,
+                value: value
+            });
+        });
+
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const formData = new FormData();
+        formData.append('expenses', JSON.stringify(expenseData));
+        formData.append('jumlaYaMatumizi', parseFloat(jumlaYaMatumiziElement.textContent) || 0);
+
+        fetch('{% url "expense_view" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Expenses submitted successfully!');
+                expenseForm.reset();
+                calculateExpenseTotals();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    function updateFinalSummary() {
+        const totalFedha = parseFloat(document.getElementById('totalFedha').textContent) || 0;
+        const jumlaMatumizi = parseFloat(document.getElementById('jumlaYaMatumizi').textContent) || 0;
+        const finalAmount = totalFedha - jumlaMatumizi;
+
+        document.getElementById('finalTotalFedha').textContent = totalFedha.toFixed(2);
+        document.getElementById('finalJumlaMatumizi').textContent = jumlaMatumizi.toFixed(2);
+        document.getElementById('finalAmount').textContent = finalAmount.toFixed(2);
+    }
+
+    // Add this to your existing event listeners
+    document.querySelectorAll('.expense-input, #productsTable input').forEach(input => {
+        input.addEventListener('input', updateFinalSummary);
+    });
+
+    const countedMoneyInput = document.getElementById('countedMoney');
+    const differenceElement = document.getElementById('difference');
+
+    countedMoneyInput.addEventListener('input', function() {
+        const countedAmount = parseFloat(this.value) || 0;
+        const totalFedha = parseFloat(document.getElementById('totalFedha').textContent) || 0;
+        const difference = countedAmount - totalFedha;
+        
+        differenceElement.textContent = difference.toFixed(2);
+        
+        // Add color coding for the difference
+        if (difference > 0) {
+            differenceElement.style.color = '#2ed8b6'; // Green for positive difference
+        } else if (difference < 0) {
+            differenceElement.style.color = '#ff5252'; // Red for negative difference
+        } else {
+            differenceElement.style.color = 'white'; // White for zero difference
+        }
+    });
+
+    // Update the form submission handler to include counted money
+    form.addEventListener('submit', function(event) {
+        // ... existing code ...
+        
+        formData.append('countedMoney', document.getElementById('countedMoney').value);
+        formData.append('difference', document.getElementById('difference').textContent);
+        
+        // ... rest of the submission code ...
+    });
+
+    const supplierForm = document.getElementById('supplierForm');
+
+    supplierForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const formData = new FormData();
+        formData.append('supplier_id', document.getElementById('supplierSelect').value);
+        formData.append('liter', document.getElementById('literAmount').value);
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        fetch('{% url "submit_supplier_data" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Update the received value in the sales table for the corresponding product
+                const productRow = document.querySelector(`tr[data-product-id="${data.product_id}"]`);
+                if (productRow) {
+                    const receivedInput = productRow.querySelector('.received');
+                    const currentReceived = parseFloat(receivedInput.value) || 0;
+                    receivedInput.value = currentReceived + parseFloat(data.liter);
+                    // Trigger the input event to update calculations
+                    receivedInput.dispatchEvent(new Event('input'));
+                }
+                
+                // Reset the supplier form
+                supplierForm.reset();
+                alert('Data submitted successfully!');
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while submitting the form.');
+        });
+    });
+
+    // Modify the existing sales form submission handler to reset received values
+    const existingFormSubmitHandler = form.onsubmit;
+    form.onsubmit = function(event) {
+        // Call the existing handler
+        existingFormSubmitHandler.call(this, event);
+        
+        // Reset all received inputs to 0 after successful submission
+        document.querySelectorAll('.received').forEach(input => {
+            input.value = '0';
+        });
+    };
+
+    // Enhanced Select2 initialization
+    $(document).ready(function() {
+        $('#supplierSelect').select2({
+            placeholder: "Tafuta Msambazaji...",
+            allowClear: true,
+            width: '100%',
+            templateResult: formatSupplier,
+            templateSelection: formatSupplierSelection
+        });
+    });
+
+    // Format the dropdown options
+    // function formatSupplier(supplier) {
+    //     if (!supplier.id) return supplier.text;
+        
+    //     return $(`
+    //         <div class="supplier-option">
+    //             <span class="supplier-name">${supplier.text}</span>
+    //             <span class="supplier-liter">Lita za mwisho: ${$(supplier.element).data('liter') || 0}</span>
+    //         </div>
+    //     `);
+    // }
+
+    // Format the selected option
+    function formatSupplierSelection(supplier) {
+        if (!supplier.id) return supplier.text;
+        return supplier.text;
+    }
+  });
+</script>
+{% endblock extra_js %}
