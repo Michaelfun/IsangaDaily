@@ -16,7 +16,7 @@
             <span class="r"></span>
           </div>
           <div class="card mb-0">
-            <form method="post" class="card-body">
+            <form method="post" class="card-body" id="loginForm">
               {% csrf_token %}
 
               <div class="text-center">
@@ -34,25 +34,42 @@
                 {% endfor %}
               {% endif %}
 
-              {% for field in form %}
-              <div class="form-group mb-3">
-                {{ field }}
-              </div>
-              {% endfor %}
-              <div class="d-flex mt-1 justify-content-between align-items-center">
-                <div class="form-check">
-                  <input class="form-check-input input-primary" type="checkbox" id="customCheckc1" checked="">
-                  <label class="form-check-label text-muted" for="customCheckc1">Remember me?</label>
+              <!-- Step 1: Username/Password -->
+              <div id="step1" class="login-step">
+                <div class="form-group mb-3">
+                  {{ form.username }}
                 </div>
-                <a href="{% url 'password_reset' %}" class="text-secondary f-w-400 mb-0">Forgot Password?</a>
+                <div class="form-group mb-3">
+                  {{ form.password }}
+                </div>
+                
+                <div class="d-flex mt-1 justify-content-between align-items-center">
+                  <div class="form-check">
+                    <input class="form-check-input input-primary" type="checkbox" id="rememberMe" name="remember">
+                    <label class="form-check-label text-muted" for="rememberMe">Remember me?</label>
+                  </div>
+                  <a href="{% url 'password_reset' %}" class="text-secondary f-w-400 mb-0">Forgot Password?</a>
+                </div>
+                
+                <div class="text-center mt-4">
+                  <button type="button" id="nextStep" class="btn btn-primary shadow px-sm-4">Next</button>
+                </div>
               </div>
-              <div class="text-center mt-4">
-                <button type="submit" class="btn btn-primary shadow px-sm-4">Login</button>
+
+              <!-- Step 2: Shop Selection (Initially Hidden) -->
+              <div id="step2" class="login-step" style="display: none;">
+                <h4 class="text-center f-w-500 mt-4 mb-3">Select Shop</h4>
+                <div class="form-group mb-3">
+                  <select name="selected_shop" class="form-control" id="shopSelect" required>
+                    <option value="">Select a shop...</option>
+                  </select>
+                </div>
+                <div class="text-center mt-4">
+                  <button type="button" id="backStep" class="btn btn-secondary shadow px-sm-4 me-2">Back</button>
+                  <button type="submit" class="btn btn-primary shadow px-sm-4">Login</button>
+                </div>
               </div>
-              <div class="d-flex justify-content-between align-items-end mt-4">
-                <h6 class="f-w-500 mb-0">Don't have an Account?</h6>
-                <a href="{% url 'register' %}" class="link-primary">Create Account</a>
-              </div>
+
             </form>
           </div>
         </div>
@@ -66,5 +83,103 @@
     <p>Shop: {{ user.userprofile.shop.name }}</p>
   </div>
   {% endif %}
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const step1 = document.getElementById('step1');
+      const step2 = document.getElementById('step2');
+      const nextStepBtn = document.getElementById('nextStep');
+      const backStepBtn = document.getElementById('backStep');
+      const usernameField = document.querySelector('[name="username"]');
+      const passwordField = document.querySelector('[name="password"]');
+      const shopSelect = document.getElementById('shopSelect');
+      
+      async function loadShops() {
+          try {
+              const response = await fetch('/accounts/get-shops/', {
+                  method: 'GET',
+                  headers: {
+                      'Accept': 'application/json',
+                  }
+              });
+
+              if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+              }
+
+              const data = await response.json();
+              
+              // Clear existing options except the first one
+              shopSelect.innerHTML = '<option value="">Select a shop...</option>';
+              
+              // Add new options
+              data.shops.forEach(shop => {
+                  const option = document.createElement('option');
+                  option.value = shop.id;
+                  option.textContent = shop.name;
+                  shopSelect.appendChild(option);
+              });
+          } catch (error) {
+              console.error('Error loading shops:', error);
+              alert('Error loading shops. Please try again.');
+          }
+      }
+
+      nextStepBtn.addEventListener('click', async function() {
+          if (!usernameField.value || !passwordField.value) {
+              alert('Please fill in all fields');
+              return;
+          }
+
+          // Get CSRF token
+          const csrfToken = document.querySelector('[name="csrfmiddlewaretoken"]').value;
+
+          try {
+              const response = await fetch(`/accounts/check-user-group/${usernameField.value}/`, {
+                  method: 'GET',
+                  headers: {
+                      'Accept': 'application/json',
+                      'X-CSRFToken': csrfToken
+                  }
+              });
+
+              if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+              }
+
+              const data = await response.json();
+              
+              if (data.status === 'success') {
+                  if (data.is_manager) {
+                      // Load shops before showing the selection
+                      await loadShops();
+                      step1.style.display = 'none';
+                      step2.style.display = 'block';
+                      document.getElementById('shopSelect').required = true;
+                  } else {
+                      // If not manager, submit the form directly
+                      document.getElementById('loginForm').submit();
+                  }
+              } else {
+                  alert(data.message || 'Error checking user group. Please try again.');
+              }
+          } catch (error) {
+              console.error('Error checking user group:', error);
+              alert('Error checking user group. Please try again.');
+          }
+      });
+
+      backStepBtn.addEventListener('click', function() {
+          step2.style.display = 'none';
+          step1.style.display = 'block';
+      });
+  });
+  </script>
+
+  <style>
+  .login-step {
+      transition: all 0.3s ease;
+  }
+  </style>
 
 {% endblock content %}

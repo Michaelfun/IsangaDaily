@@ -1,56 +1,148 @@
-{% extends "layouts/base-auth.html" %}
+{% extends "layouts/base.html" %}
 {% load static %}
 
-{% block title %}Register{% endblock title %}
+{% block title %}Registration{% endblock title %}
 
 {% block content %}
-
-  <div class="auth-main">
-    <div class="auth-wrapper v1">
-      <div class="auth-form">
-        <div class="position-relative my-5">
-          <div class="auth-bg">
-            <span class="r"></span>
-            <span class="r s"></span>
-            <span class="r s"></span>
-            <span class="r"></span>
+<div class="pc-container">
+  <div class="pc-content">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link active" href="#user" data-bs-toggle="tab" role="tab">User Registration</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#product" data-bs-toggle="tab" role="tab">Product</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#shop" data-bs-toggle="tab" role="tab">Shop</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#expense" data-bs-toggle="tab" role="tab">Expense Purpose</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#price" data-bs-toggle="tab" role="tab">Shop Price</a>
+              </li>
+            </ul>
           </div>
-          <div class="card mb-0">
-            <form method="post" class="card-body">
-              {% csrf_token %}
-              
-              <div class="text-center">
-                <a href="{% url "index" %}">
-                  <div>
-                    <img src="{% static "assets/images/logo-dark.svg" %}" alt="img">
+          <div class="card-body">
+            <div class="tab-content">
+              <!-- User Registration Form -->
+              <div class="tab-pane fade show active" id="user" role="tabpanel">
+                <h4 class="mb-4">Register New User</h4>
+                <form method="post" action="{% url 'registration' %}">
+                  {% csrf_token %}
+                  <div class="row">
+                    <div class="col-md-6">
+                      <h5 class="mb-3">User Details</h5>
+                      {% for field in form %}
+                      <div class="form-group mb-3">
+                        <label>{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                          <div class="text-danger mt-1">{{ field.errors }}</div>
+                        {% endif %}
+                      </div>
+                      {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                      <h5 class="mb-3">Profile Details</h5>
+                      {% for field in profile_form %}
+                      <div class="form-group mb-3">
+                        <label>{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                          <div class="text-danger mt-1">{{ field.errors }}</div>
+                        {% endif %}
+                      </div>
+                      {% endfor %}
+                    </div>
                   </div>
-                </a>
+                  <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Register User</button>
+                  </div>
+                </form>
               </div>
-              <h4 class="text-center f-w-500 mt-4 mb-3">Sign up</h4>
-              {% for field in form %}
-              <div class="form-group mb-3">
-                {{ field }}
-                <span class="d-block mt-1 text-danger">{{ field.errors }}</span>
+
+              <!-- Product Form -->
+              <div class="tab-pane fade" id="product" role="tabpanel">
+                <h4 class="mb-4">Add New Product</h4>
+                <form method="post" action="{% url 'product_create' %}">
+                  {% csrf_token %}
+                  {% for field in product_form %}
+                  <div class="form-group mb-3">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                      <div class="text-danger mt-1">{{ field.errors }}</div>
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                  <button type="submit" class="btn btn-primary">Add Product</button>
+                </form>
               </div>
-              {% endfor %}
-              <div class="d-flex mt-1 justify-content-between">
-                <div class="form-check">
-                  <input class="form-check-input input-primary" type="checkbox" id="customCheckc1" checked="">
-                  <label class="form-check-label text-muted" for="customCheckc1">I agree to all the Terms & Condition</label>
-                </div>
+
+              <!-- Shop Form -->
+              <div class="tab-pane fade" id="shop" role="tabpanel">
+                <h4 class="mb-4">Add New Shop</h4>
+                <form method="post" action="{% url 'shop_create' %}">
+                  {% csrf_token %}
+                  {% for field in shop_form %}
+                  <div class="form-group mb-3">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                      <div class="text-danger mt-1">{{ field.errors }}</div>
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                  <button type="submit" class="btn btn-primary">Add Shop</button>
+                </form>
               </div>
-              <div class="text-center mt-4">
-                <button type="submit" class="btn btn-primary shadow px-sm-4">Sign up</button>
+
+              <!-- Expense Purpose Form -->
+              <div class="tab-pane fade" id="expense" role="tabpanel">
+                <h4 class="mb-4">Add Expense Purpose</h4>
+                <form method="post" action="{% url 'expense_purpose_create' %}">
+                  {% csrf_token %}
+                  {% for field in expense_form %}
+                  <div class="form-group mb-3">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                      <div class="text-danger mt-1">{{ field.errors }}</div>
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                  <button type="submit" class="btn btn-primary">Add Expense Purpose</button>
+                </form>
               </div>
-              <div class="d-flex justify-content-between align-items-end mt-4">
-                <h6 class="f-w-500 mb-0">Already have an Account?</h6>
-                <a href="{% url "login" %}" class="link-primary">Login</a>
+
+              <!-- Shop Price Form -->
+              <div class="tab-pane fade" id="price" role="tabpanel">
+                <h4 class="mb-4">Add Shop Price</h4>
+                <form method="post" action="{% url 'shop_price_create' %}">
+                  {% csrf_token %}
+                  {% for field in price_form %}
+                  <div class="form-group mb-3">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                      <div class="text-danger mt-1">{{ field.errors }}</div>
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                  <button type="submit" class="btn btn-primary">Add Shop Price</button>
+                </form>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
+</div>
 {% endblock content %}

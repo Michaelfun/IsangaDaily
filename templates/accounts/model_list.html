@@ -1,0 +1,54 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}{{ list_title }}{% endblock title %}
+
+{% block content %}
+<div class="pc-container">
+  <div class="pc-content">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h4>{{ list_title }}</h4>
+            <a href="{{ create_url }}" class="btn btn-primary">
+              <i class="material-icons-two-tone">add</i> Add New
+            </a>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    {% for header in headers %}
+                    <th>{{ header }}</th>
+                    {% endfor %}
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in items %}
+                  <tr>
+                    {% for field in item.fields %}
+                    <td>{{ field }}</td>
+                    {% endfor %}
+                    <td>
+                      <a href="{{ item.edit_url }}" class="btn btn-sm btn-info">
+                        <i class="material-icons-two-tone">edit</i>
+                      </a>
+                      <a href="{{ item.delete_url }}" class="btn btn-sm btn-danger">
+                        <i class="material-icons-two-tone">delete</i>
+                      </a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %} 

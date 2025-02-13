@@ -78,8 +78,25 @@
   }
 
   .table td {
+    min-width: 100px;  /* Minimum width for table cells */
     padding: 15px;
     vertical-align: middle;
+  }
+
+  /* Make the first column (MAELEZO) wider */
+  .table td:first-child {
+    min-width: 150px;
+  }
+
+  /* Make the price column slightly narrower */
+  .table td:nth-child(2) {
+    min-width: 90px;
+  }
+
+  /* Add horizontal scroll for table on small screens */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Button Styles */
@@ -254,6 +271,39 @@
     font-size: 0.85em;
     color: #6c757d;
   } */
+
+  /* Add this to your existing styles */
+  .swal2-popup {
+    font-size: 1rem;
+  }
+
+  /* Add these table cell styles */
+  .table td input.form-control {
+    min-width: 80px;
+    width: 100%;
+    padding: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #2c3e50;
+  }
+
+  .table thead th {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #2c3e50;
+    padding: 15px 10px;
+  }
+
+  /* Make sure numbers are right-aligned */
+  .table td input[type="number"] {
+    text-align: right;
+  }
+
+  /* First column (MAELEZO) left-aligned */
+  .table td:first-child {
+    text-align: left;
+    font-weight: 500;
+  }
 </style>
 
 <div class="pc-container">
@@ -287,7 +337,16 @@
                             {% csrf_token %}
                             <div class="supplier-input-group">
                                 <div class="supplier-field">
-                                    <select class="form-select" id="supplierSelect" required>
+                                    <select class="form-select" id="sourceType" required>
+                                        <option value="">Chagua Chanzo</option>
+                                        <option value="supplier">Msambazaji</option>
+                                        <option value="shop">Duka Jingine</option>
+                                        <option value="store">Store</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="supplier-field" id="supplierSelectContainer" style="display: none;">
+                                    <select class="form-select" id="supplierSelect">
                                         <option value=""></option>
                                         {% for supplier in suppliers %}
                                             <option value="{{ supplier.id }}" data-liter="0">
@@ -296,10 +355,99 @@
                                         {% endfor %}
                                     </select>
                                 </div>
+
+                                <div class="supplier-field" id="shopSelectContainer" style="display: none;">
+                                    <select class="form-select" id="shopSelect">
+                                        <option value="store">Store</option>
+                                        {% for shop in shops %}
+                                            <option value="{{ shop.id }}">
+                                                {{ shop.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="supplier-field">
+                                    <select class="form-select" id="milkType" required>
+                                        <option value="">Chagua Aina ya Maziwa</option>
+                                        <option value="Maziwa Moto">Maziwa Moto</option>
+                                        <option value="Maziwa Baridi">Maziwa Baridi</option>
+                                        <option value="Maziwa Mgando">Maziwa Mgando</option>
+                                    </select>
+                                </div>
                                 <div class="liter-field">
                                     <input type="number" 
                                            class="form-control" 
                                            id="literAmount" 
+                                           placeholder="Lita" 
+                                           required>
+                                </div>
+                                <div class="submit-field">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-check me-2"></i>Wasilisha
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add this card right after the Pokea card -->
+        <div class="container mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Toka</h4>
+                </div>
+                <div class="card-body">
+                    <div class="supplier-form-container">
+                        <form id="tokaForm">
+                            {% csrf_token %}
+                            <div class="supplier-input-group">
+                                <div class="supplier-field">
+                                    <select class="form-select" id="tokaSourceType" required>
+                                        <option value="">Chagua Chanzo</option>
+                                        <option value="supplier">Msambazaji</option>
+                                        <option value="shop">Duka Jingine</option>
+                                        <option value="store">Store</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="supplier-field" id="tokaSupplierSelectContainer" style="display: none;">
+                                    <select class="form-select" id="tokaSupplierSelect">
+                                        <option value=""></option>
+                                        {% for supplier in suppliers %}
+                                            <option value="{{ supplier.id }}" data-liter="0">
+                                                {{ supplier.username }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="supplier-field" id="tokaShopSelectContainer" style="display: none;">
+                                    <select class="form-select" id="tokaShopSelect">
+                                        <option value="">Chagua Duka...</option>
+                                        {% for shop in shops %}
+                                            <option value="{{ shop.id }}">
+                                                {{ shop.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="supplier-field">
+                                    <select class="form-select" id="tokaMilkType" required>
+                                        <option value="">Chagua Aina ya Maziwa</option>
+                                        <option value="Maziwa Moto">Maziwa Moto</option>
+                                        <option value="Maziwa Baridi">Maziwa Baridi</option>
+                                        <option value="Maziwa Mgando">Maziwa Mgando</option>
+                                    </select>
+                                </div>
+                                <div class="liter-field">
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="tokaLiterAmount" 
                                            placeholder="Lita" 
                                            required>
                                 </div>
@@ -350,8 +498,19 @@
                                                 <td>{{ product.name }}</td>
                                                 <td><input type="number" class="form-control price" data-product-id="{{ product.id }}" value="{{ product.default_price }}"></td>
                                                 <td><input type="number" class="form-control previous-balance"  value="{{ product.remaining }}"></td>
-                                                <td><input type="number" class="form-control received"></td>
-                                                <td><input type="number" class="form-control sold" ></td>
+                                                {% if product.name == 'Maziwa Baridi' %}
+                                                <td><input type="number" class="form-control received" value="{{ product.pokelewa_baridi }}" readonly></td>
+                                                <td><input type="number" class="form-control sold" value="{{ product.toka_baridi }}" readonly></td>
+                                                {% elif product.name == 'Maziwa Moto' %}
+                                                <td><input type="number" class="form-control received" value="{{ product.pokelewa_moto }}" readonly></td>
+                                                <td><input type="number" class="form-control sold" value="{{ product.toka_moto }}" readonly></td>
+                                                {% elif product.name == 'Maziwa Mgando' %}
+                                                <td><input type="number" class="form-control received" value="{{ product.pokelewa_mgando }}" readonly></td>
+                                                <td><input type="number" class="form-control sold" value="{{ product.toka_mgando }}" readonly></td>
+                                                {% else %}
+                                                <td><input type="number" class="form-control received" value="0"></td>
+                                                <td><input type="number" class="form-control sold" value="0" ></td>
+                                                {% endif %}
                                                 <td><input type="number" class="form-control total" readonly></td>
                                                 <td><input type="number" class="form-control sold-amount"></td>
                                                 <td><input type="number" class="form-control damaged" ></td>
@@ -365,8 +524,8 @@
 
                                 <div class="summary-card">
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <h4>Jumla ya Fedha: <span id="totalFedha">0.00</span> TZS</h4>
-                                        <h5>Kwa Maneno: <span id="totalFedhaWords">Sifuri</span></h5>
+                                        <h4>Jumla ya Fedha: </h4>
+                                        <h5><span id="totalFedha">0.00</span> TZS</h5>
                                     </div>
                                 </div>
 
@@ -434,302 +593,253 @@
                             </form>
                         </div>
                     </div>
-
-                    <div class="summary-card final-summary">
-                        <div class="row text-white">
-                            <div class="col-md-6">
-                                <div class="d-flex justify-content-between text-white align-items-center">
-                                    <h4>Jumla ya Fedha:</h4>
-                                    <h4><span id="finalTotalFedha">0.00</span> TZS</h4>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <h4>Jumla ya Matumizi:</h4>
-                                    <h4><span id="finalJumlaMatumizi">0.00</span> TZS</h4>
-                                </div>
-                            </div>
-                            <div class="col-12 mt-3">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <h4>Salio:</h4>
-                                    <h4><span id="finalAmount">0.00</span> TZS</h4>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- First, make sure these modals are present in your HTML -->
+<div class="modal fade" id="supplierModal" tabindex="-1" aria-labelledby="supplierModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="supplierModalLabel">Chagua Msambazaji</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <select class="form-select" id="modalSupplierSelect">
+                    <option value="">Chagua Msambazaji...</option>
+                    {% for supplier in suppliers %}
+                        <option value="{{ supplier.id }}">{{ supplier.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Funga</button>
+                <button type="button" class="btn btn-primary" id="confirmSupplier">Thibitisha</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="shopModal" tabindex="-1" aria-labelledby="shopModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shopModalLabel">Chagua Duka</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <select class="form-select" id="modalShopSelect">
+                    <option value="">Chagua Duka...</option>
+                    {% for shop in shops %}
+                        <option value="{{ shop.id }}">{{ shop.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Funga</button>
+                <button type="button" class="btn btn-primary" id="confirmShop">Thibitisha</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock content %}
 
 {% block extra_js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-      const form = document.getElementById('salesForm');
-      const productsTable = document.getElementById('productsTable');
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the modals
+    const supplierModal = new bootstrap.Modal(document.getElementById('supplierModal'));
+    const shopModal = new bootstrap.Modal(document.getElementById('shopModal'));
+    
+    // Track which form triggered the modal
+    let activeForm = null;
 
-      // Function to convert number to Swahili words
-      function numberToWords(num) {
-          const ones = ['', 'Moja', 'Mbili', 'Tatu', 'Nne', 'Tano', 'Sita', 'Saba', 'Nane', 'Tisa'];
-          const tens = ['', '', 'Ishirini', 'Thelathini', 'Arobaini', 'Hamsini', 'Sitini', 'Sabini', 'Themanini', 'Tisini'];
-          const thousands = ['', 'Elfu', 'Milioni', 'Bilioni'];
-
-          function convertLessThanThousand(n) {
-              if (n === 0) return '0';
-              
-              let words = '';
-              if (n >= 100) {
-                  words += ones[Math.floor(n / 100)] + ' Mia ';
-                  n %= 100;
-              }
-
-              if (n >= 20) {
-                  words += tens[Math.floor(n / 10)] + ' ';
-                  n %= 10;
-              } else if (n >= 10) {
-                  const teens = ['Kumi', 'Kumi na Moja', 'Kumi na Mbili', 'Kumi na Tatu', 'Kumi na Nne', 
-                                'Kumi na Tano', 'Kumi na Sita', 'Kumi na Saba', 'Kumi na Nane', 'Kumi na Tisa'];
-                  words += teens[n - 10];
-                  n = 0;
-              }
-
-              if (n > 0) {
-                  words += ones[n] + ' ';
-              }
-
-              return words.trim();
-          }
-
-          function convertNumber(num) {
-              if (num === 0) return 'Sifuri';
-
-              let words = '';
-              let scale = 0;
-
-              while (num > 0) {
-                  if (num % 1000 !== 0) {
-                      let segment = convertLessThanThousand(num % 1000);
-                      if (scale > 0) {
-                          segment += ' ' + thousands[scale] + ' ';
-                      }
-                      words = segment + words;
-                  }
-                  num = Math.floor(num / 1000);
-                  scale++;
-              }
-
-              return words.trim();
-          }
-
-          return convertNumber(Math.round(num));
-      }
-
-      // Calculate totals for a specific row
-      function updateRow(row) {
-          const bakiJana = parseFloat(row.querySelector('.previous-balance').value) || 0;
-          const pokelewa = parseFloat(row.querySelector('.received').value) || 0;
-          const toka = parseFloat(row.querySelector('.sold').value) || 0;
-          const uzwa = parseFloat(row.querySelector('.sold-amount').value) || 0;
-          const haribika = parseFloat(row.querySelector('.damaged').value) || 0;
-          const price = parseFloat(row.querySelector('.price').value) || 0;
-
-          // Calculate Jumla
-          let jumla = bakiJana + pokelewa - toka;
-          row.querySelector('.total').value = jumla.toFixed(2);
-
-          // Calculate Baki
-          let baki = jumla - (uzwa + haribika);
-          row.querySelector('.remaining-balance').value = baki.toFixed(2);
-
-          // Calculate Fedha
-          let fedha = uzwa * price;
-          row.querySelector('.cash-amount').value = fedha.toFixed(2);
-
-          updateGrandTotals();
-      }
-
-      // Update all rows and the totals section
-      function updateGrandTotals() {
-          let grandTotal = 0;
-
-          document.querySelectorAll('#productsTable tbody tr').forEach(row => {
-              const fedha = parseFloat(row.querySelector('.cash-amount').value) || 0;
-              grandTotal += fedha;
-          });
-
-          document.getElementById('totalFedha').textContent = grandTotal.toFixed(2);
-          document.getElementById('totalFedhaWords').textContent = numberToWords(grandTotal);
-      }
-
-      // Add event listeners to inputs
-      document.querySelectorAll('#productsTable tbody input').forEach(input => {
-          input.addEventListener('input', function() {
-              const row = this.closest('tr');
-              updateRow(row);
-          });
-      });
-
-      // Form submission handler
-      form.addEventListener('submit', function(event) {
-          event.preventDefault();
-
-          const products = [];
-          const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-          // Collect product data
-          document.querySelectorAll('#productsTable tbody tr').forEach(row => {
-              const productData = {
-                  productId: row.querySelector('.price').getAttribute('data-product-id'),
-                  price: parseFloat(row.querySelector('.price').value) || 0,
-                  previousBalance: parseFloat(row.querySelector('.previous-balance').value) || 0,
-                  received: parseFloat(row.querySelector('.received').value) || 0,
-                  sold: parseFloat(row.querySelector('.sold').value) || 0,
-                  total: parseFloat(row.querySelector('.total').value) || 0,
-                  soldAmount: parseFloat(row.querySelector('.sold-amount').value) || 0,
-                  damaged: parseFloat(row.querySelector('.damaged').value) || 0,
-                  remainingBalance: parseFloat(row.querySelector('.remaining-balance').value) || 0,
-                  cashAmount: parseFloat(row.querySelector('.cash-amount').value) || 0
-              };
-              products.push(productData);
-          });
-
-          // Create FormData object
-          const formData = new FormData();
-          formData.append('totalFedha', document.getElementById('totalFedha').textContent);
-          formData.append('totalFedhaWords', document.getElementById('totalFedhaWords').textContent);
-          formData.append('countedMoney', document.getElementById('countedMoney').value);
-          formData.append('difference', document.getElementById('difference').textContent);
-          
-          // Add each product to the form data
-          products.forEach((product, index) => {
-              formData.append(`products[${index}]`, JSON.stringify(product));
-          });
-
-          // Submit data via fetch
-          fetch('{% url "submit_sales" %}', {
-              method: 'POST',
-              headers: {
-                  'X-CSRFToken': csrfToken
-              },
-              body: formData
-          })
-          .then(response => {
-              if (!response.ok) {
-                  throw new Error(`HTTP error! status: ${response.status}`);
-              }
-              return response.json();
-          })
-          .then(data => {
-              if (data.status === 'success') {
-                  alert('Sales data submitted successfully!');
-                  // Reset the form
-                  form.reset();
-                  // Reset the calculated fields
-                  document.querySelectorAll('.total, .remaining-balance, .cash-amount').forEach(input => {
-                      input.value = '0.00';
-                  });
-                  document.getElementById('totalFedha').textContent = '0.00';
-                  document.getElementById('totalFedhaWords').textContent = 'Sifuri';
-                  document.getElementById('countedMoney').value = '';
-                  document.getElementById('difference').textContent = '0.00';
-              } else {
-                  alert('Error submitting sales data: ' + data.message);
-              }
-          })
-          .catch(error => {
-              console.error('Error:', error);
-              alert('An error occurred while submitting the form. Please try again.');
-          });
-      });
-
-    const expenseInputs = document.querySelectorAll('.expense-input');
-    const jumlaYaMatumiziElement = document.getElementById('jumlaYaMatumizi');
-    const finalAmountElement = document.getElementById('finalAmount');
-    const jumlaYaFedhaElement = document.getElementById('totalFedha');
-    const expenseForm = document.getElementById('expenses');
-
-    // Function to calculate totals dynamically
-    function calculateExpenseTotals() {
-        let jumlaYaMatumizi = 0;
-
-        expenseInputs.forEach(input => {
-            const value = parseFloat(input.value) || 0;
-            jumlaYaMatumizi += value;
-        });
-
-        const jumlaYaFedha = parseFloat(jumlaYaFedhaElement.textContent) || 0;
-        const finalAmount = jumlaYaFedha - jumlaYaMatumizi;
-
-        // Update totals on the UI
-        jumlaYaMatumiziElement.textContent = jumlaYaMatumizi.toFixed(2) + ' TZS';
-        finalAmountElement.textContent = finalAmount.toFixed(2) + ' TZS';
-    }
-
-    // Add event listeners for inputs
-    expenseInputs.forEach(input => {
-        input.addEventListener('input', calculateExpenseTotals);
+    // Source type change handler for Pokea form
+    document.getElementById('sourceType').addEventListener('change', function() {
+        const selectedValue = this.value;
+        activeForm = 'pokea';
+        
+        if (selectedValue === 'supplier') {
+            supplierModal.show();
+        } else if (selectedValue === 'shop') {
+            shopModal.show();
+        }
     });
 
-    // Form submission handler
-    expenseForm.addEventListener('submit', function(event) {
-        event.preventDefault();
+    // Source type change handler for Toka form
+    document.getElementById('tokaSourceType').addEventListener('change', function() {
+        const selectedValue = this.value;
+        activeForm = 'toka';
+        
+        if (selectedValue === 'supplier') {
+            supplierModal.show();
+        } else if (selectedValue === 'shop') {
+            shopModal.show();
+        }
+    });
 
-        const expenseData = [];
-        expenseInputs.forEach(input => {
-            const row = input.closest('tr');
-            const purpose = input.dataset.expensePurpose; // Retrieve purpose directly from the table
-            const value = parseFloat(input.value) || 0;
-
-            expenseData.push({
-                purpose: purpose,
-                value: value
-            });
-        });
-
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        const formData = new FormData();
-        formData.append('expenses', JSON.stringify(expenseData));
-        formData.append('jumlaYaMatumizi', parseFloat(jumlaYaMatumiziElement.textContent) || 0);
-
-        fetch('{% url "expense_view" %}', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert('Expenses submitted successfully!');
-                expenseForm.reset();
-                calculateExpenseTotals();
-            } else {
-                alert('Error: ' + data.message);
+    // Confirm supplier selection
+    document.getElementById('confirmSupplier').addEventListener('click', function() {
+        const modalSelect = document.getElementById('modalSupplierSelect');
+        const supplierId = modalSelect.value;
+        
+        if (supplierId) {
+            if (activeForm === 'pokea') {
+                document.getElementById('supplierSelect').value = supplierId;
+                document.getElementById('supplierSelectContainer').style.display = 'block';
+            } else if (activeForm === 'toka') {
+                document.getElementById('tokaSupplierSelect').value = supplierId;
+                document.getElementById('tokaSupplierSelectContainer').style.display = 'block';
             }
-        })
-        .catch(error => console.error('Error:', error));
+            
+            const selectedName = modalSelect.options[modalSelect.selectedIndex].text;
+            supplierModal.hide();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Imefanikiwa!',
+                text: `Mapokezi ya maziwa kutoka ${selectedName} yamehifadhiwa kikamilifu!`,
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Hitilafu!',
+                text: 'Tafadhali chagua msambazaji',
+            });
+        }
     });
 
-    function updateFinalSummary() {
-        const totalFedha = parseFloat(document.getElementById('totalFedha').textContent) || 0;
-        const jumlaMatumizi = parseFloat(document.getElementById('jumlaYaMatumizi').textContent) || 0;
-        const finalAmount = totalFedha - jumlaMatumizi;
+    // Confirm shop selection
+    document.getElementById('confirmShop').addEventListener('click', function() {
+        const modalSelect = document.getElementById('modalShopSelect');
+        const shopId = modalSelect.value;
+        
+        if (shopId) {
+            if (activeForm === 'pokea') {
+                document.getElementById('shopSelect').value = shopId;
+                document.getElementById('shopSelectContainer').style.display = 'block';
+            } else if (activeForm === 'toka') {
+                document.getElementById('tokaShopSelect').value = shopId;
+                document.getElementById('tokaShopSelectContainer').style.display = 'block';
+            }
+            
+            const selectedName = modalSelect.options[modalSelect.selectedIndex].text;
+            shopModal.hide();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Imefanikiwa!',
+                text: `Kutoka kwa maziwa kwenda ${selectedName} kumehifadhiwa kikamilifu!`,
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Hitilafu!',
+                text: 'Tafadhali chagua duka',
+            });
+        }
+    });
 
-        document.getElementById('finalTotalFedha').textContent = totalFedha.toFixed(2);
-        document.getElementById('finalJumlaMatumizi').textContent = jumlaMatumizi.toFixed(2);
-        document.getElementById('finalAmount').textContent = finalAmount.toFixed(2);
+    // Reset source type when modal is closed without selection
+    document.getElementById('supplierModal').addEventListener('hidden.bs.modal', function() {
+        if (!document.getElementById(activeForm === 'pokea' ? 'supplierSelect' : 'tokaSupplierSelect').value) {
+            document.getElementById(activeForm === 'pokea' ? 'sourceType' : 'tokaSourceType').value = '';
+        }
+    });
+
+    document.getElementById('shopModal').addEventListener('hidden.bs.modal', function() {
+        if (!document.getElementById(activeForm === 'pokea' ? 'shopSelect' : 'tokaShopSelect').value) {
+            document.getElementById(activeForm === 'pokea' ? 'sourceType' : 'tokaSourceType').value = '';
+        }
+    });
+
+    // Function to calculate total (jumla)
+    function calculateTotal() {
+        let grandTotal = 0;
+
+        // Iterate through each row in the products table
+        document.querySelectorAll('#productsTable tbody tr').forEach(row => {
+            const bakiJana = parseFloat(row.querySelector('.previous-balance').value) || 0;
+            const pokelewa = parseFloat(row.querySelector('.received').value) || 0;
+            const toka = parseFloat(row.querySelector('.sold').value) || 0;
+            const price = parseFloat(row.querySelector('.price').value) || 0;
+            const uzwa = parseFloat(row.querySelector('.sold-amount').value) || 0;
+            const haribika = parseFloat(row.querySelector('.damaged').value) || 0;
+
+            // Calculate jumla for the current row
+            const jumla = bakiJana + pokelewa - toka;
+            row.querySelector('.total').value = jumla.toFixed(2);
+
+            // Validate uzwa
+            if (uzwa > jumla) {
+                row.querySelector('.sold-amount').value = '0';
+            }
+
+            // Calculate the cash amount
+            const cashAmount = uzwa * price;
+            row.querySelector('.cash-amount').value = cashAmount.toFixed(2);
+
+            // Calculate baki
+            const baki = jumla - uzwa - haribika;
+            row.querySelector('.remaining-balance').value = baki.toFixed(2);
+
+            // Add to grand total
+            grandTotal += cashAmount;
+        });
+
+        // Update the grand total display
+        document.getElementById('totalFedha').textContent = grandTotal.toFixed(2);
     }
 
-    // Add this to your existing event listeners
-    document.querySelectorAll('.expense-input, #productsTable input').forEach(input => {
-        input.addEventListener('input', updateFinalSummary);
+    // Function to calculate total for Matumizi
+    function calculateMatumiziTotal() {
+        let totalMatumizi = 0;
+
+        // Iterate through each input in the Matumizi table
+        document.querySelectorAll('.expense-input').forEach(input => {
+            const value = parseFloat(input.value) || 0; // Get the value of the input
+            totalMatumizi += value; // Add to the total
+        });
+
+        // Update the total display for Jumla ya Matumizi
+        document.getElementById('jumlaYaMatumizi').textContent = totalMatumizi.toFixed(2) + ' TZS';
+
+        // Update Salio in the final card
+        const totalFedha = parseFloat(document.getElementById('totalFedha').textContent) || 0;
+        const salio = totalFedha - totalMatumizi;
+        document.getElementById('finalAmount').textContent = salio.toFixed(2) + ' TZS';
+    }
+
+    // Add input event listeners to all relevant fields
+    document.querySelectorAll('#productsTable tbody input').forEach(input => {
+        input.addEventListener('input', function() {
+            calculateTotal();
+        });
     });
 
+    // Initial calculation on page load
+    calculateTotal();
+
+    // Attach input event listeners to Matumizi fields
+    document.querySelectorAll('.expense-input').forEach(input => {
+        input.addEventListener('input', function() {
+            calculateMatumiziTotal(); // Recalculate Matumizi total on input change
+        });
+    });
+
+    // Update tofauti live
     const countedMoneyInput = document.getElementById('countedMoney');
     const differenceElement = document.getElementById('difference');
 
@@ -750,100 +860,407 @@
         }
     });
 
-    // Update the form submission handler to include counted money
-    form.addEventListener('submit', function(event) {
-        // ... existing code ...
-        
-        formData.append('countedMoney', document.getElementById('countedMoney').value);
-        formData.append('difference', document.getElementById('difference').textContent);
-        
-        // ... rest of the submission code ...
-    });
+    // Handle Daily Sales Collection form submission
+    document.getElementById('salesForm').addEventListener('submit', function(e) {
+        e.preventDefault();
 
-    const supplierForm = document.getElementById('supplierForm');
+        // Validate Fedha Zilizohesabiwa
+        const countedMoney = document.getElementById('countedMoney').value;
+        if (!countedMoney || countedMoney.trim() === '') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Hitilafu!',
+                text: 'Tafadhali jaza Fedha Zilizohesabiwa kwanza',
+                confirmButtonText: 'Sawa'
+            });
+            document.getElementById('countedMoney').focus();
+            return;
+        }
 
-    supplierForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        
-        const formData = new FormData();
-        formData.append('supplier_id', document.getElementById('supplierSelect').value);
-        formData.append('liter', document.getElementById('literAmount').value);
-        
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        
-        fetch('{% url "submit_supplier_data" %}', {
+        // Show loading indicator
+        Swal.fire({
+            title: 'Inahifadhi...',
+            text: 'Tafadhali subiri',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Collect products data
+        const products = [];
+        document.querySelectorAll('#productsTable tbody tr').forEach(row => {
+            const productData = {
+                productId: row.getAttribute('data-product-id'),
+                price: row.querySelector('.price').value || 0,
+                previousBalance: row.querySelector('.previous-balance').value || 0,
+                received: row.querySelector('.received').value || 0,
+                sold: row.querySelector('.sold').value || 0,
+                total: row.querySelector('.total').value || 0,
+                soldAmount: row.querySelector('.sold-amount').value || 0,
+                damaged: row.querySelector('.damaged').value || 0,
+                remainingBalance: row.querySelector('.remaining-balance').value || 0,
+                cashAmount: row.querySelector('.cash-amount').value || 0
+            };
+            products.push(productData);
+        });
+
+        // Submit the form
+        fetch('{% url "submit_sales" %}', {
             method: 'POST',
             headers: {
-                'X-CSRFToken': csrfToken
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
             },
+            body: JSON.stringify({
+                totalFedha: document.getElementById('totalFedha').textContent,
+                countedMoney: countedMoney,
+                difference: document.getElementById('difference').textContent,
+                products: products
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || 'Server error occurred');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                // Reset form fields
+                document.querySelectorAll('#productsTable tbody input').forEach(input => {
+                    if (!input.classList.contains('price')) {
+                        input.value = '0';
+                    }
+                });
+                document.getElementById('countedMoney').value = '';
+                document.getElementById('difference').textContent = '0.00';
+                
+                // Recalculate totals
+                calculateTotal();
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Imefanikiwa!',
+                    text: 'Taarifa za mauzo zimehifadhiwa kikamilifu!',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    // Reload only the necessary data instead of full page
+                    location.reload(true); // Force reload from server
+                });
+            } else {
+                throw new Error(data.message || 'Failed to save data');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Hitilafu!',
+                text: error.message || 'Kuna hitilafu imetokea. Tafadhali jaribu tena.'
+            });
+        });
+    });
+
+    // Handle Matumizi form submission
+    document.getElementById('expenses').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Collect expenses data
+        const expenses = [];
+        document.querySelectorAll('.expense-input').forEach(input => {
+            const value = input.value.trim();
+            if (value && value !== '0') {
+                expenses.push({
+                    purpose: input.getAttribute('data-expense-purpose'),
+                    value: parseFloat(value),
+                    expense_id: input.getAttribute('data-expense-id')
+                });
+            }
+        });
+
+        if (expenses.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Taarifa!',
+                text: 'Hakuna matumizi yaliyojazwa',
+                confirmButtonText: 'Sawa'
+            });
+            return;
+        }
+
+        // Show loading indicator
+        Swal.fire({
+            title: 'Inahifadhi...',
+            text: 'Tafadhali subiri',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Submit expenses data
+        fetch('{% url "expense_view" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                expenses: expenses,
+                jumlaYaMatumizi: document.getElementById('jumlaYaMatumizi').textContent.replace(' TZS', '')
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || 'Server error occurred');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                // Reset expense form fields
+                document.querySelectorAll('.expense-input').forEach(input => {
+                    input.value = '';
+                });
+                
+                // Reset total
+                document.getElementById('jumlaYaMatumizi').textContent = '0.00 TZS';
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Imefanikiwa!',
+                    text: 'Taarifa za matumizi zimehifadhiwa kikamilifu!',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    // Reload only the necessary data instead of full page
+                    location.reload(true); // Force reload from server
+                });
+            } else {
+                throw new Error(data.message || 'Failed to save data');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Hitilafu!',
+                text: error.message || 'Kuna hitilafu imetokea. Tafadhali jaribu tena.'
+            });
+        });
+    });
+
+    // Handle Pokea form submission
+    document.getElementById('supplierForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const sourceType = document.getElementById('sourceType').value;
+        let sourceName = '';
+        let sourceId = '';
+        
+        // Get source details based on type
+        if (sourceType === 'supplier') {
+            const select = document.getElementById('supplierSelect');
+            sourceId = select.value;
+            sourceName = select.options[select.selectedIndex].text;
+        } else if (sourceType === 'shop') {
+            const select = document.getElementById('shopSelect');
+            sourceId = select.value;
+            sourceName = select.options[select.selectedIndex].text;
+        } else if (sourceType === 'store') {
+            sourceId = 'store';
+            sourceName = 'Store';
+        }
+
+        if (!sourceType) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Hitilafu!',
+                text: 'Tafadhali chagua chanzo'
+            });
+            return;
+        }
+
+        // Don't validate sourceId for 'store' type
+        if (sourceId === '' && sourceType !== 'store') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Hitilafu!',
+                text: 'Tafadhali chagua ' + (sourceType === 'supplier' ? 'msambazaji' : 'duka')
+            });
+            return;
+        }
+
+        // Validate other required fields
+        const literAmount = document.getElementById('literAmount').value;
+        const milkType = document.getElementById('milkType').value;
+
+        if (!literAmount || !milkType) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Hitilafu!',
+                text: 'Tafadhali jaza taarifa zote muhimu'
+            });
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('source_type', sourceType);
+        formData.append('source_id', sourceId);
+        formData.append('source_name', sourceName);
+        formData.append('liter', literAmount);
+        formData.append('milk_type', milkType);
+        formData.append('action_type', 'pokea');
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+        fetch('{% url "submit_supplier_data" %}', {
+            method: 'POST',
             body: formData
         })
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                // Update the received value in the sales table for the corresponding product
-                const productRow = document.querySelector(`tr[data-product-id="${data.product_id}"]`);
-                if (productRow) {
-                    const receivedInput = productRow.querySelector('.received');
-                    const currentReceived = parseFloat(receivedInput.value) || 0;
-                    receivedInput.value = currentReceived + parseFloat(data.liter);
-                    // Trigger the input event to update calculations
-                    receivedInput.dispatchEvent(new Event('input'));
-                }
+                // Reset form
+                this.reset();
+                document.getElementById('supplierSelectContainer').style.display = 'none';
+                document.getElementById('shopSelectContainer').style.display = 'none';
                 
-                // Reset the supplier form
-                supplierForm.reset();
-                alert('Data submitted successfully!');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Imefanikiwa!',
+                    text: `Mapokezi ya maziwa kutoka ${sourceName} yamehifadhiwa kikamilifu!`,
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    window.location.reload();
+                });
             } else {
-                alert('Error: ' + data.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Hitilafu!',
+                    text: data.message || 'Kuna hitilafu imetokea. Tafadhali jaribu tena.'
+                });
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while submitting the form.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Hitilafu!',
+                text: 'Kuna hitilafu imetokea wakati wa kuhifadhi taarifa. Tafadhali jaribu tena.'
+            });
         });
     });
 
-    // Modify the existing sales form submission handler to reset received values
-    const existingFormSubmitHandler = form.onsubmit;
-    form.onsubmit = function(event) {
-        // Call the existing handler
-        existingFormSubmitHandler.call(this, event);
+    // Handle Toka form submission
+    document.getElementById('tokaForm').addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        // Reset all received inputs to 0 after successful submission
-        document.querySelectorAll('.received').forEach(input => {
-            input.value = '0';
-        });
-    };
+        const sourceType = document.getElementById('tokaSourceType').value;
+        let sourceName = '';
+        let sourceId = '';
+        
+        // Get source details based on type
+        if (sourceType === 'supplier') {
+            const select = document.getElementById('tokaSupplierSelect');
+            sourceId = select.value;
+            sourceName = select.options[select.selectedIndex].text;
+        } else if (sourceType === 'shop') {
+            const select = document.getElementById('tokaShopSelect');
+            sourceId = select.value;
+            sourceName = select.options[select.selectedIndex].text;
+        } else if (sourceType === 'store') {
+            sourceId = 'store';
+            sourceName = 'Store';
+        }
 
-    // Enhanced Select2 initialization
-    $(document).ready(function() {
-        $('#supplierSelect').select2({
-            placeholder: "Tafuta Msambazaji...",
-            allowClear: true,
-            width: '100%',
-            templateResult: formatSupplier,
-            templateSelection: formatSupplierSelection
+        if (!sourceType) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Hitilafu!',
+                text: 'Tafadhali chagua chanzo'
+            });
+            return;
+        }
+
+        // Don't validate sourceId for 'store' type
+        if (sourceId === '' && sourceType !== 'store') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Hitilafu!',
+                text: 'Tafadhali chagua ' + (sourceType === 'supplier' ? 'msambazaji' : 'duka')
+            });
+            return;
+        }
+
+        // Validate other required fields
+        const literAmount = document.getElementById('tokaLiterAmount').value;
+        const milkType = document.getElementById('tokaMilkType').value;
+
+        if (!literAmount || !milkType) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Hitilafu!',
+                text: 'Tafadhali jaza taarifa zote muhimu'
+            });
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('source_type', sourceType);
+        formData.append('source_id', sourceId);
+        formData.append('source_name', sourceName);
+        formData.append('liter', literAmount);
+        formData.append('milk_type', milkType);
+        formData.append('action_type', 'toka');
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+        fetch('{% url "submit_supplier_data" %}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Reset form
+                this.reset();
+                document.getElementById('tokaSupplierSelectContainer').style.display = 'none';
+                document.getElementById('tokaShopSelectContainer').style.display = 'none';
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Imefanikiwa!',
+                    text: `Kutoka kwa maziwa kwenda ${sourceName} kumehifadhiwa kikamilifu!`,
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Hitilafu!',
+                    text: data.message || 'Kuna hitilafu imetokea. Tafadhali jaribu tena.'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Hitilafu!',
+                text: 'Kuna hitilafu imetokea wakati wa kuhifadhi taarifa. Tafadhali jaribu tena.'
+            });
         });
     });
-
-    // Format the dropdown options
-    // function formatSupplier(supplier) {
-    //     if (!supplier.id) return supplier.text;
-        
-    //     return $(`
-    //         <div class="supplier-option">
-    //             <span class="supplier-name">${supplier.text}</span>
-    //             <span class="supplier-liter">Lita za mwisho: ${$(supplier.element).data('liter') || 0}</span>
-    //         </div>
-    //     `);
-    // }
-
-    // Format the selected option
-    function formatSupplierSelection(supplier) {
-        if (!supplier.id) return supplier.text;
-        return supplier.text;
-    }
-  });
+});
 </script>
 {% endblock extra_js %}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Report</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sales Report</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Store</th>
+                <th>Product</th>
+                <th>User</th>
+                <th>Previous Balance</th>
+                <th>Received</th>
+                <th>Sold</th>
+                <th>Remaining</th>
+                <th>Spoiled</th>
+                <th>Amount (Tsh)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sale in sales %}
+            <tr>
+                <td>{{ sale.created_at|date:"Y-m-d" }}</td>
+                <td>{{ sale.shop.name }}</td>
+                <td>{{ sale.product.name }}</td>
+                <td>{{ sale.user.username }}</td>
+                <td>{{ sale.remainingJana }}</td>
+                <td>{{ sale.received }}</td>
+                <td>{{ sale.given }}</td>
+                <td>{{ sale.remaining }}</td>
+                <td>{{ sale.spoiled }}</td>
+                <td>{{ sale.amount }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html> 

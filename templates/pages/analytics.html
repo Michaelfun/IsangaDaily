@@ -26,106 +26,11 @@
 
       <!-- [ Main Content ] start -->
       <div class="row">
-        <!-- Summary Cards -->
-        <div class="col-sm-3">
-          <div class="card hover-shadow-lg">
-            <div class="card-body position-relative overflow-hidden">
-              <div class="badge bg-primary-subtle text-primary position-absolute end-0 top-0 m-3">Total</div>
-              <div class="d-flex align-items-center">
-                <div class="flex-grow-1">
-                  <h6 class="mb-2 text-muted">Total Sales</h6>
-                  <h3 class="mb-0 text-primary">Tsh {{ total_sales|default:"0" }}</h3>
-                </div>
-                <div class="avatar">
-                  <div class="avatar-title rounded-lg bg-primary-subtle">
-                    <i class="ti ti-currency-dollar f-24 text-primary"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <div class="card hover-shadow-lg">
-            <div class="card-body position-relative overflow-hidden">
-              <div class="badge bg-warning-subtle text-warning position-absolute end-0 top-0 m-3">Total</div>
-              <div class="d-flex align-items-center">
-                <div class="flex-grow-1">
-                  <h6 class="mb-2 text-muted">Total Expenses</h6>
-                  <h3 class="mb-0 text-warning">Tsh {{ total_expenses|default:"0" }}</h3>
-                </div>
-                <div class="avatar">
-                  <div class="avatar-title rounded-lg bg-warning-subtle">
-                    <i class="ti ti-receipt f-24 text-warning"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-2">
-          <div class="card hover-shadow-lg">
-            <div class="card-body position-relative overflow-hidden">
-              <div class="badge bg-success-subtle text-success position-absolute end-0 top-0 m-3">Total</div>
-              <div class="d-flex align-items-center">
-                <div class="flex-grow-1">
-                  <h6 class="mb-2 text-muted">Received Liters</h6>
-                  <h3 class="mb-0 text-success">{{ total_received|default:"0" }} L</h3>
-                </div>
-                <div class="avatar">
-                  <div class="avatar-title rounded-lg bg-success-subtle">
-                    <i class="ti ti-droplet f-24 text-success"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-2">
-          <div class="card hover-shadow-lg">
-            <div class="card-body position-relative overflow-hidden">
-              <div class="badge bg-danger-subtle text-danger position-absolute end-0 top-0 m-3">Total</div>
-              <div class="d-flex align-items-center">
-                <div class="flex-grow-1">
-                  <h6 class="mb-2 text-muted">Spoiled Liters</h6>
-                  <h3 class="mb-0 text-danger">{{ total_spoiled|default:"0" }} L</h3>
-                </div>
-                <div class="avatar">
-                  <div class="avatar-title rounded-lg bg-danger-subtle">
-                    <i class="ti ti-trash f-24 text-danger"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-2">
-          <div class="card hover-shadow-lg">
-            <div class="card-body position-relative overflow-hidden">
-              <div class="badge bg-info-subtle text-info position-absolute end-0 top-0 m-3">Total</div>
-              <div class="d-flex align-items-center">
-                <div class="flex-grow-1">
-                  <h6 class="mb-2 text-muted">Tofauti</h6>
-                  <h3 class="mb-0 text-info">Tsh {{ total_difference|default:"0" }}</h3>
-                </div>
-                <div class="avatar">
-                  <div class="avatar-title rounded-lg bg-info-subtle">
-                    <i class="ti ti-calculator f-24 text-info"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- Filter Section -->
         <div class="col-sm-12">
           <div class="card hover-shadow-lg">
             <div class="card-header d-flex align-items-center justify-content-between bg-light">
               <h5 class="mb-0">Filter Sales Data</h5>
-              <button type="button" class="btn btn-primary btn-sm">
-                <i class="ti ti-download me-1"></i>Export Data
-              </button>
             </div>
             <div class="card-body">
               <form id="filterForm" class="row g-3">
@@ -164,11 +69,492 @@
           </div>
         </div>
 
+        <!-- Summary Cards -->
+        <div class="col-sm-3">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-primary-subtle text-primary position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Total Sales</h6>
+                  <h3 class="mb-0 text-primary">Tsh {{ total_sales|default:"0" }}</h3>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-primary-subtle">
+                    <i class="ti ti-currency-dollar f-24 text-primary"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-warning-subtle text-warning position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Total Expenses</h6>
+                  <h3 class="mb-0 text-warning">Tsh {{ total_expenses|default:"0" }}</h3>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-warning-subtle">
+                    <i class="ti ti-receipt f-24 text-warning"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add this card after the Expense card -->
+        <div class="col-sm-3">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-success-subtle text-success position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Cash</h6>
+                  <h3 class="mb-0 text-success">Tsh {{ total_cash|default:"0"|floatformat:2 }}</h3>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-success-subtle">
+                    <i class="ti ti-cash f-24 text-success"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Move Tofauti card before Total Received Milk -->
+        <div class="col-sm-3">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-info-subtle text-info position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Tofauti</h6>
+                  <h3 class="mb-0 text-info">Tsh {{ total_difference|default:"0" }}</h3>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-info-subtle">
+                    <i class="ti ti-calculator f-24 text-info"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Update Spoiled Liters card -->
+        <div class="col-sm-3">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-danger-subtle text-danger position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Spoiled Liters</h6>
+                  <h3 class="mb-0 text-danger">{{ total_spoiled|default:"0" }} L</h3>
+                  <small class="text-muted">
+                    Hot: {{ total_spoiled_hot|default:"0" }} L<br>
+                    Cold: {{ total_spoiled_cold|default:"0" }} L<br>
+                    Mgando: {{ total_spoiled_mgando|default:"0" }} L
+                  </small>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-danger-subtle">
+                    <i class="ti ti-trash f-24 text-danger"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Update Total Received Milk card -->
+        <div class="col-sm-3">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-primary-subtle text-primary position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Total Received Milk</h6>
+                  <h3 class="mb-0 text-primary">{{ total_received|default:"0" }} L</h3>
+                  <small class="text-muted">
+                    Hot: {{ total_received_hot|default:"0" }} L<br>
+                    Cold: {{ total_received_cold|default:"0" }} L<br>
+                    Mgando: {{ total_received_mgando|default:"0" }} L
+                  </small>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-primary-subtle">
+                    <i class="ti ti-milk f-24 text-primary"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Update Total Transferred Milk card -->
+        <div class="col-sm-3">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-info-subtle text-info position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Total Transferred Milk</h6>
+                  <h3 class="mb-0 text-info">{{ total_transferred|default:"0" }} L</h3>
+                  <small class="text-muted">
+                    Hot: {{ total_transferred_hot|default:"0" }} L<br>
+                    Cold: {{ total_transferred_cold|default:"0" }} L<br>
+                    Mgando: {{ total_transferred_mgando|default:"0" }} L
+                  </small>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-info-subtle">
+                    <i class="ti ti-transfer f-24 text-info"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add new card for Total Sold Milk after Total Transferred Milk card -->
+        <div class="col-sm-3">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-warning-subtle text-warning position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Total Sold Milk</h6>
+                  <h3 class="mb-0 text-warning">{{ total_sold_milk|default:"0" }} L</h3>
+                  <small class="text-muted">
+                    Hot: {{ total_sold_hot|default:"0" }} L<br>
+                    Cold: {{ total_sold_cold|default:"0" }} L<br>
+                    Mgando: {{ total_sold_mgando|default:"0" }} L
+                  </small>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-warning-subtle">
+                    <i class="ti ti-bottle f-24 text-warning"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add New Cards for Moto, Mgando, and Vitafunwa -->
+        <div class="col-sm-3">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-danger-subtle text-danger position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Total Moto</h6>
+                  <h3 class="mb-0 text-danger">Tsh {{ total_moto|default:"0" }}</h3>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-danger-subtle">
+                    <i class="ti ti-fire f-24 text-danger"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-warning-subtle text-warning position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Total Mgando</h6>
+                  <h3 class="mb-0 text-warning">Tsh {{ total_mgando|default:"0" }}</h3>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-warning-subtle">
+                    <i class="ti ti-basket f-24 text-warning"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-primary-subtle text-primary position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Total Vitafunwa</h6>
+                  <h3 class="mb-0 text-primary">Tsh {{ total_vitafunwa|default:"0" }}</h3>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-primary-subtle">
+                    <i class="ti ti-cake f-24 text-primary"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add this card after the Total Mgando card and before Total Vitafunwa card -->
+        <div class="col-sm-3">
+          <div class="card hover-shadow-lg">
+            <div class="card-body position-relative overflow-hidden">
+              <div class="badge bg-info-subtle text-info position-absolute end-0 top-0 m-3">Total</div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-2 text-muted">Total Maziwa Baridi</h6>
+                  <h3 class="mb-0 text-info">Tsh {{ total_baridi|default:"0" }}</h3>
+                </div>
+                <div class="avatar">
+                  <div class="avatar-title rounded-lg bg-info-subtle">
+                    <i class="ti ti-snowflake f-24 text-info"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add this after the summary cards and before the existing table -->
+        <div class="col-sm-12">
+          <div class="card hover-shadow-lg">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <h5 class="mb-0">Detailed Daily Analysis</h5>
+              <div class="dropdown">
+                <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="ti ti-download me-1"></i>Export Data
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                  <li><a class="dropdown-item" href="{% url 'export_daily_analysis_excel' %}"><i class="ti ti-file-spreadsheet me-2"></i>Export to Excel</a></li>
+                  <li><a class="dropdown-item" href="{% url 'export_sales_pdf' %}"><i class="ti ti-file-text me-2"></i>Export to PDF</a></li>
+                </ul>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-striped" id="detailedAnalysisTable">
+                  <thead>
+                    <!-- First Row Headers -->
+                    <tr>
+                      <th rowspan="3" class="text-center bg-light">Tarehe</th>
+                      <th colspan="5" class="text-center bg-info-subtle">POKELEWA</th>
+                      <th colspan="5" class="text-center bg-success-subtle">TOKA</th>
+                      <th colspan="2" class="text-center bg-warning-subtle">UZWA</th>
+                      <th colspan="3" class="text-center bg-danger-subtle">HARIBIKA</th>
+                      <th colspan="3" class="text-center bg-primary-subtle">BAKI</th>
+                      <th colspan="8" class="text-center bg-secondary-subtle">VITAFUNWA</th>
+                      <th colspan="9" class="text-center bg-light">FEDHA</th>
+                    </tr>
+                    
+                    <!-- Second Row Headers -->
+                    <tr>
+                      <th colspan="3" class="text-center bg-info-subtle">MABICHI</th>
+                      <th colspan="2" class="text-center bg-info-subtle">MGANDO</th>
+                      
+                      <th colspan="2" class="text-center bg-success-subtle">MABICHI</th>
+                      <th colspan="3" class="text-center bg-success-subtle">MGANDO</th>
+                      
+                      <th colspan="2" class="text-center bg-warning-subtle">MAZIWA</th>
+                      
+                      <th colspan="3" class="text-center bg-danger-subtle">MAZIWA</th>
+                      
+                      <th colspan="3" class="text-center bg-primary-subtle">MAZIWA</th>
+                      
+                      <th colspan="8" class="text-center bg-secondary-subtle">BIDHAA</th>
+                      
+                      <th colspan="9" class="text-center bg-light">MAPATO/MATUMIZI</th>
+                    </tr>
+                    
+                    <!-- Third Row Headers (existing) -->
+                    <tr>
+                      <!-- POKELEWA -->
+                      <th class="bg-info-subtle">WAFUGAJI</th>
+                      <th class="bg-info-subtle">JIKONI</th>
+                      <th class="bg-info-subtle">MADUKANI</th>
+                      <th class="bg-info-subtle">JIKONI</th>
+                      <th class="bg-info-subtle">MADUKANI</th>
+                      
+                      <!-- TOKA -->
+                      <th class="bg-success-subtle">JIKONI</th>
+                      <th class="bg-success-subtle">MADUKANI</th>
+                      <th class="bg-success-subtle">JIKONI</th>
+                      <th class="bg-success-subtle">MADUKANI</th>
+                      <th class="bg-success-subtle">WAFUGAJI</th>
+                      
+                      <!-- UZWA -->
+                      <th class="bg-warning-subtle">MOTO</th>
+                      <th class="bg-warning-subtle">MGANDO</th>
+                      
+                      <!-- HARIBIKA -->
+                      <th class="bg-danger-subtle">MABICHI</th>
+                      <th class="bg-danger-subtle">MOTO</th>
+                      <th class="bg-danger-subtle">MGANDO</th>
+                      
+                      <!-- BAKI -->
+                      <th class="bg-primary-subtle">MABICHI</th>
+                      <th class="bg-primary-subtle">MOTO</th>
+                      <th class="bg-primary-subtle">MGANDO</th>
+                      
+                      <!-- VITAFUNWA -->
+                      <th class="bg-secondary-subtle">CHAPATI</th>
+                      <th class="bg-secondary-subtle">H.CAFE</th>
+                      <th class="bg-secondary-subtle">MAANDAZI</th>
+                      <th class="bg-secondary-subtle">SCONZI</th>
+                      <th class="bg-secondary-subtle">VITUMBUA</th>
+                      <th class="bg-secondary-subtle">MIKATE</th>
+                      <th class="bg-secondary-subtle">MAYAI</th>
+                      <th class="bg-secondary-subtle">BAGIA</th>
+                      
+                      <!-- FEDHA -->
+                      <th class="bg-light">MAUZO</th>
+                      <th class="bg-light">HALISI</th>
+                      <th class="bg-light">MATUMIZI</th>
+                      <th class="bg-light">CASH</th>
+                      <th class="bg-light">BARIDI</th>
+                      <th class="bg-light">MOTO</th>
+                      <th class="bg-light">MGANDO</th>
+                      <th class="bg-light">VITAFUNWA</th>
+                      <th class="bg-light">TOFAUTI</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for record in daily_records %}
+                    <tr>
+                      <td>{{ record.created_at__date|date:"d/m/Y" }}</td>
+                      
+                      <!-- POKELEWA -->
+                      <td>{{ record.supplier_data.wafugaji_received|default:0 }}</td>
+                      <td>{{ record.supplier_data.jikoni_received|default:0 }}</td>
+                      <td>{{ record.supplier_data.madukani_received|default:0 }}</td>
+                      <td>{{ record.pokelewa_jikoni_mgando|default:0 }}</td>
+                      <td>{{ record.pokelewa_madukani_mgando|default:0 }}</td>
+                      
+                      <!-- TOKA -->
+                      <td>{{ record.supplier_data.jikoni_transferred|default:0 }}</td>
+                      <td>{{ record.supplier_data.madukani_transferred|default:0 }}</td>
+                      <td>{{ record.toka_jikoni_mgando|default:0 }}</td>
+                      <td>{{ record.toka_madukani_mgando|default:0 }}</td>
+                      <td>{{ record.uzwa_wafugaji|default:0 }}</td>
+                      
+                      <!-- UZWA -->
+                      <td>{{ record.uzwa_moto|default:0 }}</td>
+                      <td>{{ record.uzwa_mgando|default:0 }}</td>
+                      
+                      <!-- HARIBIKA -->
+                      <td>{{ record.haribika_mabichi|default:0 }}</td>
+                      <td>{{ record.haribika_moto|default:0 }}</td>
+                      <td>{{ record.haribika_mgando|default:0 }}</td>
+                      
+                      <!-- BAKI -->
+                      <td>{{ record.baki_mabichi|default:0 }}</td>
+                      <td>{{ record.baki_moto|default:0 }}</td>
+                      <td>{{ record.baki_mgando|default:0 }}</td>
+                      
+                      <!-- VITAFUNWA -->
+                      <td>{{ record.chapati|default:0 }}</td>
+                      <td>{{ record.hcafe|default:0 }}</td>
+                      <td>{{ record.maandazi|default:0 }}</td>
+                      <td>{{ record.sconzi|default:0 }}</td>
+                      <td>{{ record.vitumbua|default:0 }}</td>
+                      <td>{{ record.mikate|default:0 }}</td>
+                      <td>{{ record.mayai|default:0 }}</td>
+                      <td>{{ record.bagia|default:0 }}</td>
+                      
+                      <!-- FEDHA -->
+                      <td>{{ record.mauzo|default:0|floatformat:2 }}</td>
+                      <td>{{ record.halisi|default:0|floatformat:2 }}</td>
+                      <td>{{ record.expenses|default:0|floatformat:2 }}</td>
+                      <td>{{ record.cash|default:0|floatformat:2 }}</td>
+                      <td>{{ record.baridi|default:0|floatformat:2 }}</td>
+                      <td>{{ record.moto|default:0|floatformat:2 }}</td>
+                      <td>{{ record.mgando|default:0|floatformat:2 }}</td>
+                      <td>{{ record.vitafunwa_total|default:0|floatformat:2 }}</td>
+                      <td>{{ record.difference|default:0|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                  <tfoot>
+                    <tr class="bg-light">
+                      <td><strong>Jumla</strong></td>
+                      
+                      <!-- POKELEWA Totals -->
+                      <td><strong>{{ totals.supplier_data.wafugaji_received|default:0 }}</strong></td>
+                      <td><strong>{{ totals.supplier_data.jikoni_received|default:0 }}</strong></td>
+                      <td><strong>{{ totals.supplier_data.madukani_received|default:0 }}</strong></td>
+                      <td><strong>{{ totals.pokelewa_jikoni_mgando|default:0 }}</strong></td>
+                      <td><strong>{{ totals.pokelewa_madukani_mgando|default:0 }}</strong></td>
+
+                      <!-- TOKA Totals -->
+                      <td><strong>{{ totals.supplier_data.jikoni_transferred|default:0 }}</strong></td>
+                      <td><strong>{{ totals.supplier_data.madukani_transferred|default:0 }}</strong></td>
+                      <td><strong>{{ totals.toka_jikoni_mgando|default:0 }}</strong></td>
+                      <td><strong>{{ totals.toka_madukani_mgando|default:0 }}</strong></td>
+                      <td><strong>{{ totals.uzwa_wafugaji|default:0 }}</strong></td>
+
+                      <!-- UZWA Totals -->
+                      <td><strong>{{ totals.uzwa_moto|default:0 }}</strong></td>
+                      <td><strong>{{ totals.uzwa_mgando|default:0 }}</strong></td>
+
+                      <!-- HARIBIKA Totals -->
+                      <td><strong>{{ totals.haribika_mabichi|default:0 }}</strong></td>
+                      <td><strong>{{ totals.haribika_moto|default:0 }}</strong></td>
+                      <td><strong>{{ totals.haribika_mgando|default:0 }}</strong></td>
+
+                      <!-- BAKI Totals -->
+                      <td><strong>{{ totals.baki_mabichi|default:0 }}</strong></td>
+                      <td><strong>{{ totals.baki_moto|default:0 }}</strong></td>
+                      <td><strong>{{ totals.baki_mgando|default:0 }}</strong></td>
+
+                      <!-- VITAFUNWA Totals -->
+                      <td><strong>{{ totals.chapati|default:0 }}</strong></td>
+                      <td><strong>{{ totals.hcafe|default:0 }}</strong></td>
+                      <td><strong>{{ totals.maandazi|default:0 }}</strong></td>
+                      <td><strong>{{ totals.sconzi|default:0 }}</strong></td>
+                      <td><strong>{{ totals.vitumbua|default:0 }}</strong></td>
+                      <td><strong>{{ totals.mikate|default:0 }}</strong></td>
+                      <td><strong>{{ totals.mayai|default:0 }}</strong></td>
+                      <td><strong>{{ totals.bagia|default:0 }}</strong></td>
+
+                      <!-- FEDHA Totals -->
+                      <td><strong>{{ totals.mauzo|default:0|floatformat:2 }}</strong></td>
+                      <td><strong>{{ totals.halisi|default:0|floatformat:2 }}</strong></td>
+                      <td><strong>{{ totals.expenses|default:0|floatformat:2 }}</strong></td>
+                      <td><strong>{{ totals.cash|default:0|floatformat:2 }}</strong></td>
+                      <td><strong>{{ totals.baridi|default:0|floatformat:2 }}</strong></td>
+                      <td><strong>{{ totals.moto|default:0|floatformat:2 }}</strong></td>
+                      <td><strong>{{ totals.mgando|default:0|floatformat:2 }}</strong></td>
+                      <td><strong>{{ totals.vitafunwa_total|default:0|floatformat:2 }}</strong></td>
+                      <td><strong>{{ totals.difference|default:0|floatformat:2 }}</strong></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Sales Table -->
         <div class="col-sm-12">
           <div class="card hover-shadow-lg">
-            <div class="card-header">
-              <h5>Sales Data</h5>
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <h5 class="mb-0">Sales Data</h5>
+              <div class="dropdown">
+                <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="exportSalesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="ti ti-download me-1"></i>Export Data
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="exportSalesDropdown">
+                  <li><a class="dropdown-item" href="{% url 'export_sales_excel' %}"><i class="ti ti-file-spreadsheet me-2"></i>Export to Excel</a></li>
+                  <li><a class="dropdown-item" href="{% url 'export_sales_pdf' %}"><i class="ti ti-file-text me-2"></i>Export to PDF</a></li>
+                </ul>
+              </div>
             </div>
             <div class="card-body">
               <div class="table-responsive">
@@ -243,4 +629,89 @@
     });
   });
 </script>
+
+<!-- Add this CSS in the existing <style> section or create one -->
+<style>
+.table-bordered > :not(caption) > * > * {
+  border-width: 1px;
+  padding: 8px;
+}
+
+#detailedAnalysisTable thead th {
+  text-align: center;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+#detailedAnalysisTable tbody td {
+  text-align: right;
+  font-size: 0.9rem;
+}
+
+#detailedAnalysisTable tfoot td {
+  font-weight: bold;
+}
+
+.bg-warning-subtle { background-color: rgba(255, 193, 7, 0.1); }
+.bg-info-subtle { background-color: rgba(13, 202, 240, 0.1); }
+.bg-success-subtle { background-color: rgba(25, 135, 84, 0.1); }
+.bg-primary-subtle { background-color: rgba(13, 110, 253, 0.1); }
+.bg-danger-subtle { background-color: rgba(220, 53, 69, 0.1); }
+.bg-secondary { background-color: rgba(108, 117, 125, 0.1); }
+
+/* Add these styles to make the table more readable */
+#detailedAnalysisTable {
+  font-size: 0.85rem;
+}
+
+#detailedAnalysisTable th {
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  padding: 8px 4px;
+}
+
+#detailedAnalysisTable td {
+  text-align: right;
+  padding: 4px;
+}
+
+/* Make the table horizontally scrollable on small screens */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#detailedAnalysisTable {
+  border: 2px solid #dee2e6;
+}
+
+#detailedAnalysisTable th,
+#detailedAnalysisTable td {
+  border: 1px solid #dee2e6;
+  vertical-align: middle;
+  padding: 8px;
+}
+
+/* Section dividers - thicker borders */
+#detailedAnalysisTable th[colspan] {
+  border-left: 2px solid #dee2e6;
+  border-right: 2px solid #dee2e6;
+}
+
+/* Vertical section dividers */
+#detailedAnalysisTable td:nth-child(6),
+#detailedAnalysisTable td:nth-child(11),
+#detailedAnalysisTable td:nth-child(14),
+#detailedAnalysisTable td:nth-child(17),
+#detailedAnalysisTable td:nth-child(25),
+#detailedAnalysisTable th:nth-child(6),
+#detailedAnalysisTable th:nth-child(11),
+#detailedAnalysisTable th:nth-child(14),
+#detailedAnalysisTable th:nth-child(17),
+#detailedAnalysisTable th:nth-child(25) {
+  border-right: 2px solid #dee2e6;
+}
+</style>
 {% endblock %}

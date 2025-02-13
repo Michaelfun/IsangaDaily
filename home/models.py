@@ -4,9 +4,29 @@ from django.utils import timezone
 
 class Product(models.Model):
     name = models.CharField(max_length=100, null=True) 
-    remaining = models.FloatField(default=0)
-    default_price = models.DecimalField(max_digits=10, decimal_places=2,null=True)
+    remaining = models.FloatField(default=0)  # This will be used as baki jana
+    pokelewa_moto = models.FloatField(default=0)
+    pokelewa_baridi = models.FloatField(default=0)
+    pokelewa_mgando = models.FloatField(default=0)
+    toka_moto = models.FloatField(default=0)
+    toka_baridi = models.FloatField(default=0)
+    toka_mgando = models.FloatField(default=0)
+    default_price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     date_created = models.DateField(auto_now_add=True, null=True)
+
+    def update_received(self, milk_type, amount):
+        if milk_type == 'Maziwa Moto':
+            self.pokelewa_moto = float(self.pokelewa_moto) + float(amount)
+        else:
+            self.pokelewa_baridi = float(self.pokelewa_baridi) + float(amount)
+        self.save()
+
+    def update_transferred(self, milk_type, amount):
+        if milk_type == 'Maziwa Moto':
+            self.toka_moto = float(self.toka_moto) + float(amount)
+        else:
+            self.toka_baridi = float(self.toka_baridi) + float(amount)
+        self.save()
 
     def __str__(self):
         return self.name
@@ -93,9 +113,13 @@ class Sales(models.Model):
         return self.product.name
 
 class SupplierData(models.Model):
-    name = models.CharField(max_length=200)
-    liter = models.FloatField()
-    receivedtime = models.DateTimeField(default=timezone.now)
+    source_type = models.CharField(max_length=200, null=True)
+    source_id = models.CharField(max_length=200, null=True)
+    source_name = models.CharField(max_length=200, null=True)
+    action_type = models.CharField(max_length=50, null=True)
+    liter = models.FloatField(default=0)
+    milk_type = models.CharField(max_length=200, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
     staff = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -103,7 +127,8 @@ class SupplierData(models.Model):
     )
 
     def __str__(self):
-        return f"{self.name} - {self.liter}L - {self.receivedtime}"
+        action = "Mapokezi" if self.action_type == 'pokea' else "Kutoka"
+        return f"{action} - {self.source_type} ({self.source_name}) - {self.liter}L"
 
     class Meta:
         verbose_name = 'Supplier Data'
@@ -136,6 +161,7 @@ class ProductAdmin(admin.ModelAdmin):
 class StoreTransfer(models.Model):
     received_liters = models.FloatField(null=True, blank=True, default=0)
     given_liters = models.FloatField(null=True, blank=True, default=0)
+    maziwa = models.CharField(max_length=200, null=True)
     from_shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='transfers_from', null=True, blank=True)
     to_shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='transfers_to', null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -167,16 +167,16 @@
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar avatar-blue">
-                                                    <span>{{ record.name|make_list|first }}</span>
+                                                    <span>{{ record.source_name|make_list|first }}</span>
                                                 </div>
                                                 <div class="ms-3">
-                                                    <h6 class="mb-0">{{ record.name }}</h6>
+                                                    <h6 class="mb-0">{{ record.source_name }}</h6>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>{{ record.liter|floatformat:2 }}L</td>
                                         <td>Tsh {{ record.revenue|floatformat:2 }}</td>
-                                        <td>{{ record.receivedtime|date:"M d, Y H:i" }}</td>
+                                        <td>{{ record.created_at|date:"M d, Y H:i" }}</td>
                                         <td>{{ record.staff.username }}</td>
                                     </tr>
                                     {% endfor %}
@@ -198,13 +198,11 @@
 <script>
     // Supply Trend Chart
     var supplyOptions = {
-        series: [{
-            name: 'Liters Supplied',
-            data: {{ supply_trend_data|safe }}
-        }],
+        series: {{ supply_trend_series|safe }},
         chart: {
             height: 350,
             type: 'area',
+            stacked: true,  // Stack the areas
             toolbar: {
                 show: false
             }
@@ -213,7 +211,8 @@
             enabled: false
         },
         stroke: {
-            curve: 'smooth'
+            curve: 'smooth',
+            width: 2
         },
         xaxis: {
             categories: {{ supply_trend_labels|safe }},
@@ -230,7 +229,7 @@
                 }
             }
         },
-        colors: ['#7267EF'],
+        colors: ['#7267EF', '#3EC59D', '#FFA21D', '#FF3366', '#00B8D9'],
         fill: {
             type: 'gradient',
             gradient: {
@@ -245,6 +244,9 @@
                 format: 'dd/MM/yy'
             },
         },
+        legend: {
+            position: 'top'
+        }
     };
     var supplyChart = new ApexCharts(document.querySelector("#supply-trend-chart"), supplyOptions);
     supplyChart.render();
