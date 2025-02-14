@@ -91,8 +91,8 @@ class Sales(models.Model):
     remainingJana = models.FloatField(null=True)
     received = models.FloatField(default=0, null=True)
     given = models.FloatField(default=0, null=True)
-    total = models.CharField(max_length=200, null=True)
-    sold = models.CharField(max_length=200, null=True)
+    total = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    sold = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     remaining = models.FloatField(default=0, null=True)
     spoiled = models.FloatField(default=0, null=True)
     amount = models.FloatField(default=0, null=True)
@@ -133,6 +133,20 @@ class SupplierData(models.Model):
     class Meta:
         verbose_name = 'Supplier Data'
         verbose_name_plural = 'Supplier Data'
+
+class DailyCount(models.Model):
+    counted_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    date = models.DateField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # Ensure only one count per shop per day
+        unique_together = ['date', 'shop']
+
+    def __str__(self):
+        return f"{self.shop.name} - {self.date} - {self.counted_amount}"
 
 # Admin customization to simplify product registration
 from django.contrib import admin

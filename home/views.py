@@ -52,12 +52,27 @@ def submit_sales(request):
             difference = data.get('difference')
             products_data = data.get('products', [])
 
+            # Create or update DailyCount
+            today = timezone.now().date()
+            daily_count, created = DailyCount.objects.get_or_create(
+                date=today,
+                shop=request.user.userprofile.shop,
+                defaults={
+                    'counted_amount': counted_money,
+                    'user': request.user
+                }
+            )
+            if not created:
+                # Update the counted amount if already exists
+                daily_count.counted_amount = counted_money
+                daily_count.save()
+
             # Process each product
             for product_data in products_data:
                 try:
                     product = Product.objects.get(id=product_data['productId'])
                     
-                    # Create Sales record
+                    # Create Sales record without counted_amount
                     Sales.objects.create(
                         product=product,
                         remainingJana=float(product_data['previousBalance']),
@@ -68,7 +83,6 @@ def submit_sales(request):
                         remaining=float(product_data['remainingBalance']),
                         spoiled=float(product_data['damaged']),
                         amount=float(product_data['cashAmount']),
-                        counted_amount=float(counted_money),
                         difference=float(difference),
                         user=request.user,
                         shop=request.user.userprofile.shop
@@ -927,7 +941,7 @@ def login_view(request):
 
             # First check if user is superuser or staff
             if user.is_superuser or user.is_staff:
-                return redirect('/admin/')  # Use direct path to admin
+                return redirect('analytics')  # Changed from /admin/ to analytics
 
             # Then handle regular user groups
             if user.groups.filter(name='Manager').exists():
@@ -1307,8 +1321,19 @@ def get_daily_records(sales_queryset=None):
     if sales_queryset is None:
         sales_queryset = Sales.objects.all()
 
-    daily_data = sales_queryset.values(
-        'created_at__date'
+    # First, let's print out some debug information
+    print("Debug: Checking sales records before aggregation")
+    debug_data = sales_queryset.values(
+        'created_at__date', 'shop__name', 'user__username'
+    ).order_by('created_at__date')
+    for record in debug_data:
+        print(f"Date: {record['created_at__date']}, Shop: {record['shop__name']}, User: {record['user__username']}")
+
+    # Get daily records with proper date grouping
+    daily_data = sales_queryset.annotate(
+        date=TruncDate('created_at')
+    ).values(
+        'date'  # Only group by date, ignore shop and user
     ).annotate(
         # POKELEWA
         pokelewa_jikoni_mgando=Coalesce(
@@ -1439,11 +1464,21 @@ def get_daily_records(sales_queryset=None):
             Value(0),
             output_field=FloatField()
         ),
-        halisi=Coalesce('counted_amount', Value(0), output_field=FloatField()),
+        halisi=Coalesce(
+            Subquery(
+                DailyCount.objects.filter(
+                    date=OuterRef('date')
+                ).values('date').annotate(
+                    total=Sum('counted_amount')
+                ).values('total')
+            ),
+            Value(0),
+            output_field=FloatField()
+        ),
         expenses=Coalesce(
             Subquery(
                 Expenses.objects.filter(
-                    date_created=OuterRef('created_at__date')
+                    date_created=OuterRef('date')
                 ).values('date_created').annotate(
                     total=Sum('cost')
                 ).values('total')
@@ -1456,9 +1491,75 @@ def get_daily_records(sales_queryset=None):
         moto=Coalesce(Sum('amount', filter=Q(product__name='Maziwa Moto')), Value(0), output_field=FloatField()),
         mgando=Coalesce(Sum('amount', filter=Q(product__name='Maziwa Mgando')), Value(0), output_field=FloatField()),
         difference=Coalesce(Sum('difference'), Value(0), output_field=FloatField())
-    ).order_by('created_at__date')
+    ).order_by('date')
 
-    return list(daily_data)
+    # Get supplier data for these dates
+    supplier_data = SupplierData.objects.filter(
+        created_at__date__in=daily_data.values('date')
+    ).annotate(
+        date=TruncDate('created_at')
+    ).values(
+        'date'
+    ).annotate(
+        wafugaji_received=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='supplier'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        jikoni_received=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='store'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        madukani_received=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='shop'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        jikoni_transferred=Sum(Case(
+            When(Q(action_type='toka') & Q(source_type='store'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        madukani_transferred=Sum(Case(
+            When(Q(action_type='toka') & Q(source_type='shop'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        ))
+    )
+
+    # Convert supplier data to dictionary for easy lookup
+    supplier_data_dict = {
+        record['date']: {
+            'wafugaji_received': record['wafugaji_received'],
+            'jikoni_received': record['jikoni_received'],
+            'madukani_received': record['madukani_received'],
+            'jikoni_transferred': record['jikoni_transferred'],
+            'madukani_transferred': record['madukani_transferred']
+        }
+        for record in supplier_data
+    }
+
+    # Convert daily_data to list and add supplier data
+    daily_data_list = list(daily_data)
+    for record in daily_data_list:
+        date = record['date']
+        supplier_info = supplier_data_dict.get(date, {
+            'wafugaji_received': 0,
+            'jikoni_received': 0,
+            'madukani_received': 0,
+            'jikoni_transferred': 0,
+            'madukani_transferred': 0
+        })
+        record['supplier_data'] = supplier_info
+        record['created_at__date'] = date
+
+    # Print debug information after aggregation
+    print("\nDebug: Checking aggregated records")
+    for record in daily_data_list:
+        print(f"Date: {record['date']}, Total Sales: {record['mauzo']}")
+
+    return daily_data_list
 
 @login_required
 @user_passes_test(is_admin_or_staff)
