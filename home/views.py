@@ -927,7 +927,7 @@ def login_view(request):
 
             # First check if user is superuser or staff
             if user.is_superuser or user.is_staff:
-                return redirect('/admin/')  # Use direct path to admin
+                return redirect('analytics')  # Use direct path to admin
 
             # Then handle regular user groups
             if user.groups.filter(name='Manager').exists():
