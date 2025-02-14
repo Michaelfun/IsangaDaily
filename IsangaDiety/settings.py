@@ -15,6 +15,12 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+import environ
+
+env = environ.Env()
+
+environ.Env.read_env()
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -25,7 +31,7 @@ SECRET_KEY = 'django-insecure-8q^$%*$i_7%s1ehpf54_#f9no42g@@-p++^f-kwr4x7)i9g($$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['.vercel.app','localhost','127.0.0.1','.now.sh']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -87,16 +93,12 @@ WSGI_APPLICATION = 'IsangaDiety.wsgi.application'
 #     }
 # }
 
+import dj_database_url
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
-        'USER': 'postgres',
-        'PASSWORD': 'VASifmpoREZHzGjfoknHCqVreQsfxTkZ',
-        'HOST': 'viaduct.proxy.rlwy.net',
-        'PORT': '47095',  
-    }
-} 
+    'default': dj_database_url.parse(env('DATABASE_URL'))
+}
+
 
 
 # Password validation
@@ -137,7 +139,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles_build','static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
