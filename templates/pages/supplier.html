@@ -104,6 +104,8 @@
                     </div>
                     <div class="card-body">
                         <div id="supply-trend-chart" style="height: 350px;"></div>
+                        <script id="supply-trend-data" type="application/json">{{ supply_trend_series|safe }}</script>
+                        <script id="supply-trend-labels" type="application/json">{{ supply_trend_labels|safe }}</script>
                     </div>
                 </div>
             </div>
@@ -119,13 +121,54 @@
             </div>
             <!-- [ Chart Section ] end -->
 
+            <!-- [ Supply Trends Table ] start -->
+            <!-- <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Supply Trends Data</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="supply-trends-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Supplier Name</th>
+                                        <th>Supplier Type</th>
+                                        <th>Liters Supplied</th>
+                                        <th>Revenue</th>
+                                        <th>Staff</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in supplier_data %}
+                                    <tr>
+                                        <td>{{ record.date|date:"M d, Y" }}</td>
+                                        <td>{{ record.source_name }}</td>
+                                        <td>{{ record.source_type }}</td>
+                                        <td>{{ record.total_liters|floatformat:2 }}L</td>
+                                        <td>Tsh {{ record.revenue|floatformat:2 }}</td>
+                                        <td>{{ record.staff__username }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+            <!-- [ Supply Trends Table ] end -->
+
             <!-- [ Filter Table ] start -->
             <div class="col-xl-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>Supply Records</h5>
-                        <div class="row g-2">
-                            <div class="col-md-3">
+                        <div class="mb-4">
+                            <h5>Supply Records</h5>
+                        </div>
+                        
+                        <form id="filter-form" class="row g-2" onsubmit="event.preventDefault(); applyFilters();">
+                            <div class="col-md-4">
                                 <input type="text" class="form-control" id="supplier-search" placeholder="Search supplier...">
                             </div>
                             <div class="col-md-2">
@@ -134,20 +177,15 @@
                             <div class="col-md-2">
                                 <input type="date" class="form-control" id="end-date" name="end_date" value="{{ end_date|date:'Y-m-d' }}">
                             </div>
-                            <div class="col-md-2">
-                                <select class="form-select" id="month-filter">
-                                    <option value="">All Months</option>
-                                    {% for month in months %}
-                                    <option value="{{ month.0 }}">{{ month.1 }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <button class="btn btn-primary" onclick="applyFilters()">
+                            <div class="col-md-4 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
                                     <i class="ti ti-filter me-1"></i>Apply Filters
                                 </button>
+                                <button type="button" class="btn btn-light" onclick="clearFilters()">
+                                    <i class="ti ti-x me-1"></i>Clear
+                                </button>
                             </div>
-                        </div>
+                        </form>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -155,6 +193,7 @@
                                 <thead>
                                     <tr>
                                         <th>Supplier Name</th>
+                                        <th>Type</th>
                                         <th>Liters</th>
                                         <th>Revenue</th>
                                         <th>Date</th>
@@ -174,10 +213,11 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>{{ record.liter|floatformat:2 }}L</td>
+                                        <td>{{ record.source_type }}</td>
+                                        <td>{{ record.total_liters|floatformat:2 }}L</td>
                                         <td>Tsh {{ record.revenue|floatformat:2 }}</td>
-                                        <td>{{ record.created_at|date:"M d, Y H:i" }}</td>
-                                        <td>{{ record.staff.username }}</td>
+                                        <td>{{ record.date|date:"M d, Y" }}</td>
+                                        <td>{{ record.staff__username }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -243,6 +283,15 @@
             x: {
                 format: 'dd/MM/yy'
             },
+            y: {
+                formatter: function(value, { series, seriesIndex, dataPointIndex, w }) {
+                    if (seriesIndex === 0) {
+                        return value.toFixed(2) + 'L';
+                    } else {
+                        return 'Tsh ' + value.toFixed(2);
+                    }
+                }
+            }
         },
         legend: {
             position: 'top'
@@ -279,54 +328,77 @@
     topSuppliersChart.render();
 
     // Filter functionality
-    function applyFilters() {
-        var supplierSearch = document.getElementById('supplier-search').value.toLowerCase();
-        var monthFilter = document.getElementById('month-filter').value;
-        var startDate = document.getElementById('start-date').value;
-        var endDate = document.getElementById('end-date').value;
-        
-        // Redirect with filter parameters
-        var url = new URL(window.location.href);
-        url.searchParams.set('start_date', startDate);
-        url.searchParams.set('end_date', endDate);
-        if (monthFilter) {
-            url.searchParams.set('month', monthFilter);
-        } else {
-            url.searchParams.delete('month');
-        }
-        
-        // Apply text search filter locally
-        var table = document.getElementById('supplier-table');
-        var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+function applyFilters() {
+    var supplierSearch = document.getElementById('supplier-search').value.toLowerCase();
+    var startDate = document.getElementById('start-date').value;
+    var endDate = document.getElementById('end-date').value;
+    
+    // Build the URL with filter parameters
+    var url = new URL(window.location.pathname, window.location.origin);
+    if (startDate) url.searchParams.set('start_date', startDate);
+    if (endDate) url.searchParams.set('end_date', endDate);
+    
+    // Make AJAX request
+    fetch(url)
+        .then(response => response.text())
+        .then(html => {
+            // Create a temporary element to parse the HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            // Update the statistics cards
+            updateStatisticsCard('total-liters', tempDiv);
+            updateStatisticsCard('total-revenue', tempDiv);
+            updateStatisticsCard('total-suppliers', tempDiv);
+            
+            // Update the supplier table
+            const newTable = tempDiv.querySelector('#supplier-table tbody');
+            const currentTable = document.querySelector('#supplier-table tbody');
+            if (newTable && currentTable) {
+                currentTable.innerHTML = newTable.innerHTML;
+            }
+            
+            // Update charts if they exist
+            if (typeof supplyTrendChart !== 'undefined') {
+                const newSeries = JSON.parse(tempDiv.querySelector('#supply-trend-data').textContent);
+                const newLabels = JSON.parse(tempDiv.querySelector('#supply-trend-labels').textContent);
+                supplyTrendChart.updateOptions({
+                    series: newSeries,
+                    xaxis: { categories: newLabels }
+                });
+            }
+            
+            // Apply text search filter locally
+            filterTableBySupplier(supplierSearch);
+        })
+        .catch(error => console.error('Error:', error));
+}
 
-        for (var i = 0; i < rows.length; i++) {
-            var supplierName = rows[i].getElementsByTagName('td')[0].textContent.toLowerCase();
-            var date = new Date(rows[i].getElementsByTagName('td')[3].textContent);
-            var month = date.getMonth() + 1;
-            
-            var showRow = true;
-            if (supplierSearch && !supplierName.includes(supplierSearch)) {
-                showRow = false;
-            }
-            if (monthFilter && month != monthFilter) {
-                showRow = false;
-            }
-            
-            rows[i].style.display = showRow ? '' : 'none';
-        }
-        
-        // Reload page with new date filters
-        if (startDate || endDate) {
-            window.location.href = url.toString();
-        }
+// Helper function to update statistics cards
+function updateStatisticsCard(id, tempDiv) {
+    const newCard = tempDiv.querySelector(`#${id}`);
+    const currentCard = document.querySelector(`#${id}`);
+    if (newCard && currentCard) {
+        currentCard.innerHTML = newCard.innerHTML;
     }
+}
 
-    // Initialize date inputs with URL parameters
+// Helper function to filter table by supplier name
+function filterTableBySupplier(supplierSearch) {
+    var table = document.getElementById('supplier-table');
+    var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+    for (var i = 0; i < rows.length; i++) {
+        var supplierName = rows[i].getElementsByTagName('td')[0].textContent.toLowerCase();
+        rows[i].style.display = !supplierSearch || supplierName.includes(supplierSearch) ? '' : 'none';
+    }
+}
+
+    // Highlight functionality between chart and table
     document.addEventListener('DOMContentLoaded', function() {
         var urlParams = new URLSearchParams(window.location.search);
         var startDate = urlParams.get('start_date');
         var endDate = urlParams.get('end_date');
-        var month = urlParams.get('month');
         
         if (startDate) {
             document.getElementById('start-date').value = startDate;
@@ -334,9 +406,35 @@
         if (endDate) {
             document.getElementById('end-date').value = endDate;
         }
-        if (month) {
-            document.getElementById('month-filter').value = month;
-        }
+        
+        // Highlight matching data between chart and table
+        document.querySelector('#supply-trend-chart').addEventListener('mouseenter', function(e) {
+            const trendTable = document.getElementById('supply-trends-table');
+            const rows = trendTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            
+            // Add hover effect class to table
+            trendTable.classList.add('chart-data-highlight');
+        });
+        
+        document.querySelector('#supply-trend-chart').addEventListener('mouseleave', function(e) {
+            const trendTable = document.getElementById('supply-trends-table');
+            trendTable.classList.remove('chart-data-highlight');
+        });
     });
+    
+    function clearFilters() {
+        document.getElementById('supplier-search').value = '';
+        document.getElementById('start-date').value = '';
+        document.getElementById('end-date').value = '';
+        applyFilters();
+    }
 </script>
+
+<style>
+    /* Optional: Add highlight effect for visualizing connection between chart and table */
+    .chart-data-highlight tbody tr:hover {
+        background-color: rgba(114, 103, 239, 0.1);
+        transition: background-color 0.3s ease;
+    }
+</style>
 {% endblock extra_js %}

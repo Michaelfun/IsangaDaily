@@ -1,0 +1,385 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Loan Management {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap5.min.css">
+<style>
+    .pcoded-content {
+        margin-left: 0;
+        padding: 25px 25px 0;
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-control, .form-select {
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 0.65rem 1rem;
+        height: calc(1.5em + 1.3rem + 2px);
+        font-size: 0.875rem;
+        background-color: #fff;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #5e72e4;
+        box-shadow: 0 0 0 0.2rem rgba(94,114,228,.25);
+    }
+    .form-control-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #3a3b45;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    .btn-primary {
+        padding: 0.65rem 1.5rem;
+        font-size: 0.875rem;
+        border-radius: 4px;
+        background-color: #5e72e4;
+        border-color: #5e72e4;
+    }
+    .btn-primary:hover {
+        background-color: #4454c3;
+        border-color: #4454c3;
+    }
+    .card {
+        border: none;
+        box-shadow: 0 0 2rem 0 rgba(136, 152, 170, .15);
+        border-radius: 0.5rem;
+    }
+    .card-header {
+        background-color: #fff;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,.05);
+    }
+    .card-header h4 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+        color: #32325d;
+    }
+    .table thead th {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.025rem;
+        padding: 0.75rem;
+        background-color: #f6f9fc;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .badge {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: 0.375rem;
+    }
+    .page-header {
+        margin-bottom: 1.5rem;
+    }
+    .page-header-title h5 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #32325d;
+    }
+    .breadcrumb {
+        padding: 0.5rem 0;
+        margin: 0;
+        background: none;
+    }
+    .breadcrumb-item {
+        font-size: 0.875rem;
+    }
+    .breadcrumb-item a {
+        color: #5e72e4;
+    }
+    .pc-container {
+        padding: 24px 24px 24px 24px;
+    }
+    .edit-loan {
+        color: #5e72e4;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    .edit-loan:hover {
+        color: #233dd2;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pc-container">
+    <div class="pc-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <div class="page-header-title">
+                            <h5 class="mb-0">Loan Management</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                            <li class="breadcrumb-item" aria-current="page">Loan Management</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Assign New Loan</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label" for="user">Select User</label>
+                                        <select class="form-select" id="user" name="user" required>
+                                            <option value="">Select a user...</option>
+                                            {% for user in users %}
+                                            <option value="{{ user.id }}">{{ user.username }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label" for="name">Loan Description</label>
+                                        <input type="text" class="form-control" id="name" name="name" required placeholder="Enter loan description">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label" for="amount">Loan Amount</label>
+                                        <input type="number" step="0.01" class="form-control" id="amount" name="amount" required placeholder="Enter loan amount">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label" for="status">Status</label>
+                                        <select class="form-select" id="status" name="status" required>
+                                            <option value="pending">Pending</option>
+                                            <option value="paid">Paid</option>
+                                            <option value="partially_paid">Partially Paid</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label" for="paid_amount">Paid Amount</label>
+                                        <input type="number" step="0.01" class="form-control" id="paid_amount" name="paid_amount" value="0" placeholder="Enter paid amount">
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary">Submit Loan</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Loans List</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table align-items-center table-flush" id="loans-table">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                        <th>Paid Amount</th>
+                                        <th>Remaining</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for loan in loans %}
+                                    <tr>
+                                        <td>
+                                            <span class="text-sm font-weight-bold">{{ loan.user.username }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-sm">{{ loan.name }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-sm">{{ loan.amount }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-sm">{{ loan.paid_amount }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-sm">{{ loan.remaining_amount }}</span>
+                                        </td>
+                                        <td>
+                                            {% if loan.status == 'pending' %}
+                                            <span class="badge bg-warning text-white">{{ loan.status|title }}</span>
+                                            {% elif loan.status == 'paid' %}
+                                            <span class="badge bg-success text-white">{{ loan.status|title }}</span>
+                                            {% else %}
+                                            <span class="badge bg-info text-white">{{ loan.status|title }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="text-sm">{{ loan.date_created }}</span>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-primary" onclick="editLoan({{ loan.id }})">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editLoanModal" tabindex="-1" aria-labelledby="editLoanModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editLoanModalLabel">Edit Loan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editLoanForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" id="editLoanId" name="loan_id">
+                    <div class="mb-3">
+                        <label for="editPaidAmount" class="form-label">Paid Amount</label>
+                        <input type="number" step="0.01" class="form-control" id="editPaidAmount" name="paid_amount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editStatus" class="form-label">Status</label>
+                        <select class="form-control" id="editStatus" name="status" required>
+                            <option value="pending">Pending</option>
+                            <option value="partially_paid">Partially Paid</option>
+                            <option value="paid">Paid</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+// Initialize the modal
+let editModal = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the Bootstrap modal
+    editModal = new bootstrap.Modal(document.getElementById('editLoanModal'));
+    
+    // Add form submit handler
+    document.getElementById('editLoanForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        submitLoanEdit();
+    });
+});
+
+function editLoan(loanId) {
+    console.log('Editing loan:', loanId);
+    
+    // Reset form
+    document.getElementById('editLoanForm').reset();
+    document.getElementById('editLoanId').value = loanId;
+    
+    // Show modal
+    if (editModal) {
+        editModal.show();
+    }
+    
+    // Fetch loan data
+    fetch(`/loan/${loanId}/data/`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Loan data:', data);
+        document.getElementById('editPaidAmount').value = data.paid_amount;
+        document.getElementById('editStatus').value = data.status;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error loading loan data');
+        if (editModal) {
+            editModal.hide();
+        }
+    });
+}
+
+function submitLoanEdit() {
+    console.log('Submitting loan edit');
+    
+    const form = document.getElementById('editLoanForm');
+    const formData = new FormData(form);
+    
+    fetch('{% url "update_loan" %}', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Success:', data);
+        if (editModal) {
+            editModal.hide();
+        }
+        // Reload page to show updated data
+        window.location.reload();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating loan');
+    });
+}
+</script>
+{% endblock %}

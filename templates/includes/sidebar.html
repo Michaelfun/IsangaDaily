@@ -32,6 +32,7 @@
                 <li class="pc-item"><a class="pc-link" href="/admin/home/supplierdata/">Supplier Data</a></li>
                 <li class="pc-item"><a class="pc-link" href="/admin/home/userprofile/">User Profile</a></li>
                 <li class="pc-item"><a class="pc-link" href="/admin/home/dailycount/">DailyCount</a></li>
+                <li class="pc-item"><a class="pc-link" href="/admin/home/loan/">loan</a></li>
               </ul>
             </li>
             <!-- User Management -->
@@ -64,7 +65,12 @@
             </li>
             <li class="pc-item">
               <a href="{% url 'supplier' %}" class="pc-link"><span class="pc-micon"><i class="material-icons-two-tone text-white">local_shipping</i></span><span class="pc-mtext">Supplier</span></a>
-            <li class="pc-item"><a class="pc-link" href="{% url 'registration' %}"><span class="pc-micon"><i class="material-icons-two-tone text-white">person_add</i></span><span class="pc-mtext">Registration</span></a></li>
+            </li>
+            <li class="pc-item">
+              <a class="pc-link" href="{% url 'registration' %}"><span class="pc-micon"><i class="material-icons-two-tone text-white">person_add</i></span><span class="pc-mtext">Registration</span></a>
+            </li>
+            <li class="pc-item">
+              <a class="pc-link" href="{% url 'loan' %}"><span class="pc-micon"><i class="material-icons-two-tone text-white">money</i></span><span class="pc-mtext">Loan Management</span></a>
             </li>
           {% else %}
             {% if 'Manager' in user.groups.all.0.name %}

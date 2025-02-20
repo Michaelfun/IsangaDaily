@@ -1,0 +1,105 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %} Supply Data Table {% endblock %}
+
+{% block content %}
+<div class="pc-container">
+    <div class="pc-content">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Supply Data</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Filters -->
+                        <form method="get" class="mb-4">
+                            <div class="row g-3">
+                                <div class="col-md-2">
+                                    <label class="form-label">From Date</label>
+                                    <input type="date" class="form-control" name="date_from" value="{{ filters.date_from }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">To Date</label>
+                                    <input type="date" class="form-control" name="date_to" value="{{ filters.date_to }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Source Type</label>
+                                    <select class="form-select" name="source_type">
+                                        <option value="">All</option>
+                                        <option value="supplier" {% if filters.source_type == 'supplier' %}selected{% endif %}>Supplier</option>
+                                        <option value="store" {% if filters.source_type == 'store' %}selected{% endif %}>Store</option>
+                                        <option value="shop" {% if filters.source_type == 'shop' %}selected{% endif %}>Shop</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Milk Type</label>
+                                    <select class="form-select" name="milk_type">
+                                        <option value="">All</option>
+                                        <option value="Maziwa Moto" {% if filters.milk_type == 'Maziwa Moto' %}selected{% endif %}>Maziwa Moto</option>
+                                        <option value="Maziwa Baridi" {% if filters.milk_type == 'Maziwa Baridi' %}selected{% endif %}>Maziwa Baridi</option>
+                                        <option value="Maziwa Mgando" {% if filters.milk_type == 'Maziwa Mgando' %}selected{% endif %}>Maziwa Mgando</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Action Type</label>
+                                    <select class="form-select" name="action_type">
+                                        <option value="">All</option>
+                                        <option value="pokea" {% if filters.action_type == 'pokea' %}selected{% endif %}>Pokea</option>
+                                        <option value="toka" {% if filters.action_type == 'toka' %}selected{% endif %}>Toka</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button type="submit" class="btn btn-primary d-block">Filter</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Table -->
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Source Type</th>
+                                        <th>Source Name</th>
+                                        <th>Action Type</th>
+                                        <th>Milk Type</th>
+                                        <th>Liters</th>
+                                        <th>Staff</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in supplier_data %}
+                                    <tr>
+                                        <td>{{ item.created_at|date:"Y-m-d H:i" }}</td>
+                                        <td>{{ item.source_type|title }}</td>
+                                        <td>{{ item.source_name }}</td>
+                                        <td>{{ item.action_type|title }}</td>
+                                        <td>{{ item.milk_type }}</td>
+                                        <td>{{ item.liter }}</td>
+                                        <td>{{ item.staff.username }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">No data found</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    // Add any additional JavaScript here
+</script>
+{% endblock javascripts %}

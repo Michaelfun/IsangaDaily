@@ -45,11 +45,24 @@ urlpatterns = [
   path('products/create/', product_create, name='product_create'),
   path('products/<int:pk>/edit/', product_edit, name='product_edit'),
   path('products/<int:pk>/delete/', product_delete, name='product_delete'),
+  
+  # Loan endpoints
+  path('api/loan/<int:loan_id>/', get_loan_data, name='get_loan_data'),
+  path('loan/', loan_view, name='loan'),
+  path('loan/<int:loan_id>/data/', get_loan_data, name='get_loan_data'),
+  path('update-loan/', update_loan, name='update_loan'),
+
   path('expense-purposes/', expense_purpose_list, name='expense_purpose_list'),
   path('expense-purposes/create/', expense_purpose_create, name='expense_purpose_create'),
+  path('expense-purposes/<int:pk>/edit/', expense_purpose_edit, name='expense_purpose_edit'),
+  path('expense-purposes/<int:pk>/delete/', expense_purpose_delete, name='expense_purpose_delete'),
+
   path('shops/', shop_list, name='shop_list'),
   path('shops/create/', shop_create, name='shop_create'),
   path('shop-prices/', shop_price_list, name='shop_price_list'),
   path('shop-prices/create/', shop_price_create, name='shop_price_create'),
+  path('shop-prices/<int:pk>/edit/', shop_price_edit, name='shop_price_edit'),
+  path('shop-prices/<int:pk>/delete/', shop_price_delete, name='shop_price_delete'),
 
+  path('loan/view/', loan_view, name='loan'), # Fix the incomplete URL pattern
 ]

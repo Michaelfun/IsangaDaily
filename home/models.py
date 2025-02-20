@@ -38,6 +38,25 @@ class ExpensePurpose(models.Model):
     def __str__(self):
         return self.name
 
+class Loan(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    name = models.CharField(max_length=100, null=True) 
+    amount = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    status = models.CharField(max_length=100, null=True, choices=[
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('partially_paid', 'Partially Paid')
+    ])
+    date_created = models.DateField(auto_now_add=True, null=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.name}"
+
+    @property
+    def remaining_amount(self):
+        return self.amount - self.paid_amount
+
 class ShopProductPrice(models.Model):
     product = models.ForeignKey(
         Product, 

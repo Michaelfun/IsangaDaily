@@ -30,6 +30,8 @@ from .forms import (
     ShopForm, ShopProductPriceForm, ExpenseForm, UserProfileForm
 )
 from django.urls import reverse
+from .models import ShopProductPrice  # Correctly import ShopProductPrice from models
+from decimal import Decimal  # Add this import at the top of your file
 
 def is_admin_or_staff(user):
     return user.is_superuser or user.is_staff
@@ -222,10 +224,52 @@ def supplier(request):
 
 @login_required(login_url='/accounts/login/')
 def table(request):
-  context = {
-    'segment': 'table'
-  }
-  return render(request, "pages/dynamic-tables.html", context)
+    # Get filter parameters
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+    source_type = request.GET.get('source_type')
+    milk_type = request.GET.get('milk_type')
+    action_type = request.GET.get('action_type')
+
+    # Start with all supplier data
+    supplier_data = SupplierData.objects.all().order_by('-created_at')
+
+    # Apply filters
+    if date_from:
+        try:
+            date_from_aware = timezone.make_aware(datetime.strptime(date_from, '%Y-%m-%d'))
+            supplier_data = supplier_data.filter(created_at__gte=date_from_aware)
+        except (ValueError, TypeError):
+            pass
+
+    if date_to:
+        try:
+            date_to_aware = timezone.make_aware(datetime.strptime(date_to, '%Y-%m-%d')) + timezone.timedelta(days=1)
+            supplier_data = supplier_data.filter(created_at__lt=date_to_aware)
+        except (ValueError, TypeError):
+            pass
+
+    if source_type:
+        supplier_data = supplier_data.filter(source_type=source_type)
+
+    if milk_type:
+        supplier_data = supplier_data.filter(milk_type=milk_type)
+
+    if action_type:
+        supplier_data = supplier_data.filter(action_type=action_type)
+
+    context = {
+        'segment': 'table',
+        'supplier_data': supplier_data,
+        'filters': {
+            'date_from': date_from,
+            'date_to': date_to,
+            'source_type': source_type,
+            'milk_type': milk_type,
+            'action_type': action_type
+        }
+    }
+    return render(request, "pages/table.html", context)
 
 @login_required(login_url='/accounts/login/')
 def store(request):
@@ -432,35 +476,80 @@ def analytics(request):
     ).values('date').annotate(
         # POKELEWA aggregations
         wafugaji_received=Sum(Case(
-            When(Q(action_type='pokea') & Q(source_type='supplier'), 
-                 then='liter'),
-            default=0,
+            When(Q(action_type='pokea') & Q(source_type='supplier') & Q(milk_type='Maziwa Moto'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        wafugaji_received_baridi=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='supplier') & Q(milk_type='Maziwa Baridi'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        wafugaji_received_mgando=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='supplier') & Q(milk_type='Maziwa Mgando'), then='liter'),
+            default=Value(0),
             output_field=FloatField()
         )),
         jikoni_received=Sum(Case(
-            When(Q(action_type='pokea') & Q(source_type='store'), 
-                 then='liter'),
-            default=0,
+            When(Q(action_type='pokea') & Q(source_type='store'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        jikoni_received_baridi=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='store') & Q(milk_type='Maziwa Baridi'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        jikoni_received_mgando=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='store') & Q(milk_type='Maziwa Mgando'), then='liter'),
+            default=Value(0),
             output_field=FloatField()
         )),
         madukani_received=Sum(Case(
-            When(Q(action_type='pokea') & Q(source_type='shop'), 
-                 then='liter'),
-            default=0,
+            When(Q(action_type='pokea') & Q(source_type='shop'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        madukani_received_baridi=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='shop') & Q(milk_type='Maziwa Baridi'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        madukani_received_mgando=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='shop') & Q(milk_type='Maziwa Mgando'), then='liter'),
+            default=Value(0),
             output_field=FloatField()
         )),
         
         # TOKA aggregations
         jikoni_transferred=Sum(Case(
-            When(Q(action_type='toka') & Q(source_type='store'), 
-                 then='liter'),
-            default=0,
+            When(Q(action_type='toka') & Q(source_type='store') & Q(milk_type='Maziwa Moto'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        jikoni_transferred_baridi=Sum(Case(
+            When(Q(action_type='toka') & Q(source_type='store') & Q(milk_type='Maziwa Baridi'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        jikoni_transferred_mgando=Sum(Case(
+            When(Q(action_type='toka') & Q(source_type='store') & Q(milk_type='Maziwa Mgando'), then='liter'),
+            default=Value(0),
             output_field=FloatField()
         )),
         madukani_transferred=Sum(Case(
-            When(Q(action_type='toka') & Q(source_type='shop'), 
-                 then='liter'),
-            default=0,
+            When(Q(action_type='toka') & Q(source_type='shop') & Q(milk_type='Maziwa Moto'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        madukani_transferred_baridi=Sum(Case(
+            When(Q(action_type='toka') & Q(source_type='shop') & Q(milk_type='Maziwa Baridi'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        madukani_transferred_mgando=Sum(Case(
+            When(Q(action_type='toka') & Q(source_type='shop') & Q(milk_type='Maziwa Mgando'), then='liter'),
+            default=Value(0),
             output_field=FloatField()
         ))
     )
@@ -484,72 +573,46 @@ def analytics(request):
 
     # Calculate totals including supplier data
     totals = {
-        'pokelewa_wafugaji': 0,
-        'pokelewa_jikoni_mabichi': 0,
-        'pokelewa_madukani_mabichi': 0,
-        'pokelewa_jikoni_mgando': 0,
-        'pokelewa_madukani_mgando': 0,
-        'toka_jikoni_mabichi': 0,
-        'toka_madukani_mabichi': 0,
-        'toka_jikoni_mgando': 0,
-        'toka_madukani_mgando': 0,
-        'wafugaji': 0,
-        'jikoni': 0,
-        'madukani': 0,
-        'uzwa_wafugaji': 0,
-        'uzwa_moto': 0,
-        'uzwa_mgando': 0,
-        'haribika_mabichi': 0,
-        'haribika_moto': 0,
-        'haribika_mgando': 0,
-        'baki_mabichi': 0,
-        'baki_moto': 0,
-        'baki_mgando': 0,
-        'chapati': 0,
-        'hcafe': 0,
-        'maandazi': 0,
-        'sconzi': 0,
-        'vitumbua': 0,
-        'mikate': 0,
-        'mayai': 0,
-        'bagia': 0,
-        'mauzo': 0,
-        'vitafunwa_total': 0,
-        'halisi': 0,
-        'expenses': 0,
-        'cash': 0,
-        'baridi': 0,
-        'moto': 0,
-        'mgando': 0,
-        'difference': 0,
         'supplier_data': {
-            'wafugaji_received': 0,
-            'jikoni_received': 0,
-            'madukani_received': 0,
-            'jikoni_transferred': 0,
-            'madukani_transferred': 0
+            'wafugaji_received': sum(float(record.get('supplier_data', {}).get('wafugaji_received', 0) or 0) for record in daily_records),
+            'jikoni_received': sum(float(record.get('supplier_data', {}).get('jikoni_received', 0) or 0) for record in daily_records),
+            'madukani_received': sum(float(record.get('supplier_data', {}).get('madukani_received', 0) or 0) for record in daily_records),
+            'jikoni_transferred': sum(float(record.get('supplier_data', {}).get('jikoni_transferred', 0) or 0) for record in daily_records),
+            'madukani_transferred': sum(float(record.get('supplier_data', {}).get('madukani_transferred', 0) or 0) for record in daily_records),
+            'wafugaji_transferred_mgando': sum(float(record.get('supplier_data', {}).get('wafugaji_transferred_mgando', 0) or 0) for record in daily_records),
         },
-        'total_vitafunwa': total_vitafunwa,
+        'pokelewa_jikoni_mgando': sum(float(record.get('pokelewa_jikoni_mgando', 0) or 0) for record in daily_records),
+        'pokelewa_madukani_mgando': sum(float(record.get('pokelewa_madukani_mgando', 0) or 0) for record in daily_records),
+        'toka_jikoni_mgando': sum(float(record.get('toka_jikoni_mgando', 0) or 0) for record in daily_records),
+        'toka_madukani_mgando': sum(float(record.get('toka_madukani_mgando', 0) or 0) for record in daily_records),
+        'uzwa_mabichi': sum(float(record.get('uzwa_baridi', 0) or 0) for record in daily_records),
+        'uzwa_moto': sum(float(record.get('uzwa_moto', 0) or 0) for record in daily_records),
+        'uzwa_mgando': sum(float(record.get('uzwa_mgando', 0) or 0) for record in daily_records),
+        'haribika_mabichi': sum(float(record.get('haribika_mabichi', 0) or 0) for record in daily_records),
+        'haribika_moto': sum(float(record.get('haribika_moto', 0) or 0) for record in daily_records),
+        'haribika_mgando': sum(float(record.get('haribika_mgando', 0) or 0) for record in daily_records),
+        'baki_mabichi': sum(float(record.get('baki_mabichi', 0) or 0) for record in daily_records),
+        'baki_moto': sum(float(record.get('baki_moto', 0) or 0) for record in daily_records),
+        'baki_mgando': sum(float(record.get('baki_mgando', 0) or 0) for record in daily_records),
+        'chapati': sum(float(record.get('chapati', 0) or 0) for record in daily_records),
+        'hcake': sum(float(record.get('hcake', 0) or 0) for record in daily_records),
+        'maandazi': sum(float(record.get('maandazi', 0) or 0) for record in daily_records),
+        'sconzi': sum(float(record.get('sconzi', 0) or 0) for record in daily_records),
+        'vitumbua': sum(float(record.get('vitumbua', 0) or 0) for record in daily_records),
+        'mikate': sum(float(record.get('mikate', 0) or 0) for record in daily_records),
+        'mayai': sum(float(record.get('mayai', 0) or 0) for record in daily_records),
+        'bagia': sum(float(record.get('bagia', 0) or 0) for record in daily_records),
+        'mauzo': sum(float(record.get('mauzo', 0) or 0) for record in daily_records),
+        'halisi': sum(float(record.get('halisi', 0) or 0) for record in daily_records),
+        'expenses': sum(float(record.get('expenses', 0) or 0) for record in daily_records),
+        'cash': sum(float(record.get('cash', 0) or 0) for record in daily_records),
+        'baridi': sum(float(record.get('baridi', 0) or 0) for record in daily_records),
+        'moto': sum(float(record.get('moto', 0) or 0) for record in daily_records),
+        'mgando': sum(float(record.get('mgando', 0) or 0) for record in daily_records),
+        'vitafunwa_total': sum(float(record.get('vitafunwa_total', 0) or 0) for record in daily_records),
+        'difference': sum(float(record.get('difference', 0) or 0) for record in daily_records),
     }
     
-    for record in daily_records:
-        for key in totals.keys():
-            if key == 'supplier_data':
-                # Handle supplier_data separately
-                for supplier_key in totals['supplier_data'].keys():
-                    try:
-                        value = float(record.get('supplier_data', {}).get(supplier_key, 0))
-                    except (TypeError, ValueError):
-                        value = 0.0
-                    totals['supplier_data'][supplier_key] += value
-            else:
-                # Handle other totals as before
-                try:
-                    value = float(record.get(key, 0))
-                except (TypeError, ValueError):
-                    value = 0.0
-                totals[key] += value
-
     # Calculate total cash (total sales - expenses)
     total_cash = total_sales - total_expenses if total_sales and total_expenses else 0
 
@@ -848,13 +911,32 @@ def supplier_view(request):
     previous_revenue = previous_liters * price_per_liter
     revenue_growth = ((total_revenue - previous_revenue) / previous_revenue * 100) if previous_revenue else 0
     
-    # Get supply trend data
-    if (end_date - start_date).days <= 31:
+    # Determine aggregation level based on date range
+    use_daily = (end_date - start_date).days <= 31
+    
+    # Get supply trend data and table data using the same aggregation
+    if use_daily:
         trend_data = queryset.values('source_name').annotate(
             date=TruncDay('created_at')
         ).values('date', 'source_name').annotate(
             total=models.Sum('liter')
         ).order_by('date', 'source_name')
+
+        # Aggregate supplier data by day
+        supplier_data = period_data.values(
+            'source_name', 
+            'source_type',
+            'staff__username'  # Include staff username in the aggregation
+        ).annotate(
+            date=TruncDay('created_at')
+        ).values(
+            'source_name', 
+            'source_type',
+            'staff__username',
+            'date'
+        ).annotate(
+            total_liters=models.Sum('liter')
+        ).order_by('-date', 'source_name')
     else:
         trend_data = queryset.values('source_name').annotate(
             date=TruncMonth('created_at')
@@ -862,22 +944,46 @@ def supplier_view(request):
             total=models.Sum('liter')
         ).order_by('date', 'source_name')
 
+        # Aggregate supplier data by month
+        supplier_data = period_data.values(
+            'source_name', 
+            'source_type',
+            'staff__username'  # Include staff username in the aggregation
+        ).annotate(
+            date=TruncMonth('created_at')
+        ).values(
+            'source_name', 
+            'source_type',
+            'staff__username',
+            'date'
+        ).annotate(
+            total_liters=models.Sum('liter')
+        ).order_by('-date', 'source_name')
+
     # Process trend data to create series for each supplier
     trend_by_supplier = {}
     trend_labels = []
     seen_dates = set()
 
+    # First pass: collect all unique dates
     for entry in trend_data:
-        date_str = entry['date'].strftime('%d %b' if (end_date - start_date).days <= 31 else '%b %Y')
+        date_str = entry['date'].strftime('%d %b' if use_daily else '%b %Y')
         if date_str not in seen_dates:
             trend_labels.append(date_str)
             seen_dates.add(date_str)
-        
+
+    # Second pass: initialize supplier data arrays
+    for entry in trend_data:
         supplier = entry['source_name']
         if supplier not in trend_by_supplier:
             trend_by_supplier[supplier] = [0] * len(trend_labels)
-        
-        trend_by_supplier[supplier][len(trend_labels) - 1] = float(entry['total'])
+
+    # Third pass: fill in the data
+    for entry in trend_data:
+        date_str = entry['date'].strftime('%d %b' if use_daily else '%b %Y')
+        supplier = entry['source_name']
+        index = trend_labels.index(date_str)
+        trend_by_supplier[supplier][index] = float(entry['total'])
 
     # Convert to series format for ApexCharts
     supply_trend_series = [
@@ -903,11 +1009,18 @@ def supplier_view(request):
         (7, 'July'), (8, 'August'), (9, 'September'),
         (10, 'October'), (11, 'November'), (12, 'December')
     ]
-    
-    # Add revenue to queryset
-    supplier_data = period_data.order_by('-created_at')
+
+    # Calculate revenue for each aggregated record
     for record in supplier_data:
-        record.revenue = record.liter * price_per_liter
+        record['revenue'] = record['total_liters'] * price_per_liter
+    
+    # Group data by source_type
+    supplier_type_data = {}
+    for record in supplier_data:
+        source_type = record['source_type']
+        if source_type not in supplier_type_data:
+            supplier_type_data[source_type] = []
+        supplier_type_data[source_type].append(record)
     
     context = {
         'total_liters': total_liters,
@@ -921,9 +1034,11 @@ def supplier_view(request):
         'top_suppliers_data': top_suppliers_data,
         'top_suppliers_labels': top_suppliers_labels,
         'months': months,
-        'supplier_data': supplier_data,
+        'supplier_type_data': supplier_type_data,
+        'supplier_data': supplier_data,  # This now includes proper aggregated data with staff usernames
         'start_date': start_date,
         'end_date': end_date,
+        'use_daily': use_daily,
     }
     
     return render(request, 'pages/supplier.html', context)
@@ -1061,34 +1176,89 @@ def export_daily_analysis_excel(request):
         date=TruncDate('created_at')
     ).values('date').annotate(
         wafugaji_received=Sum(Case(
-            When(Q(action_type='pokea') & Q(source_type='supplier'), then='liter'),
-            default=0,
+            When(Q(action_type='pokea') & Q(source_type='supplier') & Q(milk_type='Maziwa Moto'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        wafugaji_received_baridi=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='supplier') & Q(milk_type='Maziwa Baridi'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        wafugaji_received_mgando=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='supplier') & Q(milk_type='Maziwa Mgando'), then='liter'),
+            default=Value(0),
             output_field=FloatField()
         )),
         jikoni_received=Sum(Case(
             When(Q(action_type='pokea') & Q(source_type='store'), then='liter'),
-            default=0,
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        jikoni_received_baridi=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='store') & Q(milk_type='Maziwa Baridi'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        jikoni_received_mgando=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='store') & Q(milk_type='Maziwa Mgando'), then='liter'),
+            default=Value(0),
             output_field=FloatField()
         )),
         madukani_received=Sum(Case(
             When(Q(action_type='pokea') & Q(source_type='shop'), then='liter'),
-            default=0,
+            default=Value(0),
             output_field=FloatField()
         )),
+        madukani_received_baridi=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='shop') & Q(milk_type='Maziwa Baridi'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        madukani_received_mgando=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='shop') & Q(milk_type='Maziwa Mgando'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        
+        # TOKA aggregations
         jikoni_transferred=Sum(Case(
-            When(Q(action_type='toka') & Q(source_type='store'), then='liter'),
-            default=0,
+            When(Q(action_type='toka') & Q(source_type='store') & Q(milk_type='Maziwa Moto'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        jikoni_transferred_baridi=Sum(Case(
+            When(Q(action_type='toka') & Q(source_type='store') & Q(milk_type='Maziwa Baridi'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        jikoni_transferred_mgando=Sum(Case(
+            When(Q(action_type='toka') & Q(source_type='store') & Q(milk_type='Maziwa Mgando'), then='liter'),
+            default=Value(0),
             output_field=FloatField()
         )),
         madukani_transferred=Sum(Case(
-            When(Q(action_type='toka') & Q(source_type='shop'), then='liter'),
-            default=0,
+            When(Q(action_type='toka') & Q(source_type='shop') & Q(milk_type='Maziwa Moto'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        madukani_transferred_baridi=Sum(Case(
+            When(Q(action_type='toka') & Q(source_type='shop') & Q(milk_type='Maziwa Baridi'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        madukani_transferred_mgando=Sum(Case(
+            When(Q(action_type='toka') & Q(source_type='shop') & Q(milk_type='Maziwa Mgando'), then='liter'),
+            default=Value(0),
             output_field=FloatField()
         ))
     )
 
     # Convert to dictionary for easier lookup
-    supplier_data_dict = {record['date']: record for record in supplier_data}
+    supplier_data_dict = {
+        record['date']: record 
+        for record in supplier_data
+    }
 
     # Add supplier data to daily records
     for record in daily_records:
@@ -1358,10 +1528,15 @@ def get_daily_records(sales_queryset=None):
             Value(0), 
             output_field=FloatField()
         ),
+        toka_wafugaji_mgando=Coalesce(
+            Sum('given', filter=Q(product__name='Maziwa Mgando')), 
+            Value(0), 
+            output_field=FloatField()
+        ),
 
         # UZWA (using sold values)
-        uzwa_wafugaji=Coalesce(
-            Sum('sold', filter=Q(product__name='Wafugaji')), 
+        uzwa_baridi=Coalesce(
+            Sum('sold', filter=Q(product__name='Maziwa Baridi')), 
             Value(0), 
             output_field=FloatField()
         ),
@@ -1416,8 +1591,8 @@ def get_daily_records(sales_queryset=None):
             Value(0), 
             output_field=FloatField()
         ),
-        hcafe=Coalesce(
-            Sum('sold', filter=Q(product__name='H.Cafe')), 
+        hcake=Coalesce(
+            Sum('sold', filter=Q(product__name='H/Cake')), 
             Value(0), 
             output_field=FloatField()
         ),
@@ -1457,7 +1632,7 @@ def get_daily_records(sales_queryset=None):
         vitafunwa_total=Coalesce(
             Sum('amount', filter=Q(
                 product__name__in=[
-                    'Chapati', 'H.Cafe', 'Maandazi', 'Sconzi',
+                    'Chapati', 'H/Cake', 'Maandazi', 'Sconzi',
                     'Vitumbua', 'Mikate', 'Mayai', 'Bagia'
                 ]
             )),
@@ -1502,27 +1677,90 @@ def get_daily_records(sales_queryset=None):
         'date'
     ).annotate(
         wafugaji_received=Sum(Case(
-            When(Q(action_type='pokea') & Q(source_type='supplier'), then='liter'),
+            When(Q(action_type='pokea') & Q(source_type='supplier') & Q(milk_type='Maziwa Moto'), then='liter'),
             default=Value(0),
             output_field=FloatField()
         )),
+        wafugaji_received_baridi=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='supplier') & Q(milk_type='Maziwa Baridi'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        wafugaji_received_mgando=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='supplier') & Q(milk_type='Maziwa Mgando'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+
+        jikon_received_mgando=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='store') & Q(milk_type='Maziwa Mgando'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        jikon_received_Baridi=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='store') & Q(milk_type='Maziwa Baridi'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        jikon_received_Moto=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='store') & Q(milk_type='Maziwa Moto'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        
+
         jikoni_received=Sum(Case(
             When(Q(action_type='pokea') & Q(source_type='store'), then='liter'),
             default=Value(0),
             output_field=FloatField()
         )),
+
         madukani_received=Sum(Case(
             When(Q(action_type='pokea') & Q(source_type='shop'), then='liter'),
             default=Value(0),
             output_field=FloatField()
         )),
+
+        madukani_received_Baridi=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='shop') & Q(milk_type='Maziwa Baridi'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+
+        madukani_received_Mgando=Sum(Case(
+            When(Q(action_type='pokea') & Q(source_type='shop') & Q(milk_type='Maziwa Mgando'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+
+        # supplier data toka part
         jikoni_transferred=Sum(Case(
-            When(Q(action_type='toka') & Q(source_type='store'), then='liter'),
+            When(Q(action_type='toka') & Q(source_type='store') & Q(milk_type='Maziwa Moto'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        jikoni_transferred_baridi=Sum(Case(
+            When(Q(action_type='toka') & Q(source_type='store') & Q(milk_type='Maziwa Baridi'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        jikoni_transferred_mgando=Sum(Case(
+            When(Q(action_type='toka') & Q(source_type='store') & Q(milk_type='Maziwa Mgando'), then='liter'),
             default=Value(0),
             output_field=FloatField()
         )),
         madukani_transferred=Sum(Case(
-            When(Q(action_type='toka') & Q(source_type='shop'), then='liter'),
+            When(Q(action_type='toka') & Q(source_type='shop') & Q(milk_type='Maziwa Moto'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        madukani_transferred_baridi=Sum(Case(
+            When(Q(action_type='toka') & Q(source_type='shop') & Q(milk_type='Maziwa Baridi'), then='liter'),
+            default=Value(0),
+            output_field=FloatField()
+        )),
+        madukani_transferred_mgando=Sum(Case(
+            When(Q(action_type='toka') & Q(source_type='shop') & Q(milk_type='Maziwa Mgando'), then='liter'),
             default=Value(0),
             output_field=FloatField()
         ))
@@ -1532,6 +1770,8 @@ def get_daily_records(sales_queryset=None):
     supplier_data_dict = {
         record['date']: {
             'wafugaji_received': record['wafugaji_received'],
+            'wafugaji_received_baridi':record['wafugaji_received_baridi'],
+            'wafugaji_received_mgando':record['wafugaji_received_mgando'],
             'jikoni_received': record['jikoni_received'],
             'madukani_received': record['madukani_received'],
             'jikoni_transferred': record['jikoni_transferred'],
@@ -1540,26 +1780,24 @@ def get_daily_records(sales_queryset=None):
         for record in supplier_data
     }
 
-    # Convert daily_data to list and add supplier data
-    daily_data_list = list(daily_data)
-    for record in daily_data_list:
+    # Add supplier data to daily records
+    for record in daily_data:
         date = record['date']
-        supplier_info = supplier_data_dict.get(date, {
+        record['supplier_data'] = supplier_data_dict.get(date, {
             'wafugaji_received': 0,
             'jikoni_received': 0,
             'madukani_received': 0,
             'jikoni_transferred': 0,
             'madukani_transferred': 0
         })
-        record['supplier_data'] = supplier_info
         record['created_at__date'] = date
 
     # Print debug information after aggregation
     print("\nDebug: Checking aggregated records")
-    for record in daily_data_list:
+    for record in daily_data:
         print(f"Date: {record['date']}, Total Sales: {record['mauzo']}")
 
-    return daily_data_list
+    return list(daily_data)
 
 @login_required
 @user_passes_test(is_admin_or_staff)
@@ -1660,6 +1898,39 @@ def expense_purpose_list(request):
 
 @login_required
 @user_passes_test(is_admin_or_staff)
+def expense_purpose_create(request):
+    if request.method == 'POST':
+        form = ExpensePurposeForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Expense Purpose created successfully!')
+            return redirect('expense_purpose_list')
+    else:
+        form = ExpensePurposeForm()
+    return render(request, 'accounts/model_form.html', {
+        'form': form,
+        'form_title': 'Create Expense Purpose'
+    })
+
+@login_required
+@user_passes_test(is_admin_or_staff)
+def expense_purpose_edit(request, pk):
+    purpose = get_object_or_404(ExpensePurpose, pk=pk)
+    if request.method == 'POST':
+        form = ExpensePurposeForm(request.POST, instance=purpose)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Expense Purpose updated successfully!')
+            return redirect('expense_purpose_list')
+    else:
+        form = ExpensePurposeForm(instance=purpose)
+    return render(request, 'accounts/model_form.html', {
+        'form': form,
+        'form_title': 'Edit Expense Purpose'
+    })
+
+@login_required
+@user_passes_test(is_admin_or_staff)
 def shop_list(request):
     shops = Shop.objects.all()
     items = [{
@@ -1694,18 +1965,15 @@ def shop_price_list(request):
 
 @login_required
 @user_passes_test(is_admin_or_staff)
-def expense_purpose_create(request):
+def expense_purpose_delete(request, pk):
+    purpose = get_object_or_404(ExpensePurpose, pk=pk)
     if request.method == 'POST':
-        form = ExpensePurposeForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Expense Purpose created successfully!')
-            return redirect('expense_purpose_list')
-    else:
-        form = ExpensePurposeForm()
-    return render(request, 'accounts/model_form.html', {
-        'form': form,
-        'form_title': 'Create Expense Purpose'
+        purpose.delete()
+        messages.success(request, 'Expense Purpose deleted successfully!')
+        return redirect('expense_purpose_list')
+    return render(request, 'accounts/confirm_delete.html', {
+        'object': purpose,
+        'title': 'Delete Expense Purpose'
     })
 
 @login_required
@@ -1739,3 +2007,134 @@ def shop_price_create(request):
         'form': form,
         'form_title': 'Create Shop Price'
     })
+
+@login_required
+@user_passes_test(is_admin_or_staff)
+def shop_price_edit(request, pk):
+    price = get_object_or_404(ShopProductPrice, pk=pk)
+    if request.method == 'POST':
+        form = ShopProductPriceForm(request.POST, instance=price)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Shop Price updated successfully!')
+            return redirect('shop_price_list')
+    else:
+        form = ShopProductPriceForm(instance=price)
+    return render(request, 'accounts/model_form.html', {
+        'form': form,
+        'form_title': 'Edit Shop Price'
+    })
+
+@login_required
+@user_passes_test(is_admin_or_staff)
+def shop_price_delete(request, pk):
+    price = get_object_or_404(ShopProductPrice, pk=pk)
+    if request.method == 'POST':
+        price.delete()
+        messages.success(request, 'Shop Price deleted successfully!')
+        return redirect('shop_price_list')
+    return render(request, 'accounts/confirm_delete.html', {
+        'object': price,
+        'title': 'Delete Shop Price'
+    })
+
+@login_required
+@user_passes_test(is_admin_or_staff)
+def loan_view(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user')
+        name = request.POST.get('name')
+        amount = Decimal(request.POST.get('amount'))  # Convert to Decimal
+        status = request.POST.get('status')
+        paid_amount = Decimal(request.POST.get('paid_amount', 0))  # Convert to Decimal
+
+        # Check for existing loans for the same user
+        existing_loans = Loan.objects.filter(user_id=user_id, status__in=['pending', 'partially_paid'])
+
+        if existing_loans.exists():
+            # If there are existing loans, add the new amount to the previous one
+            for existing_loan in existing_loans:
+                existing_loan.amount += amount  # Now both are Decimal
+                existing_loan.paid_amount += paid_amount  # Now both are Decimal
+                existing_loan.save()
+            messages.success(request, 'Loan updated successfully by adding to existing loan.')
+        else:
+            # Create a new loan if no existing loans are found
+            Loan.objects.create(
+                user_id=user_id,
+                name=name,
+                amount=amount,
+                status=status,
+                paid_amount=paid_amount
+            )
+            messages.success(request, 'New loan created successfully.')
+
+        return redirect('loan')
+
+    context = {
+        'segment': 'loan',
+        'users': User.objects.all(),
+        'loans': Loan.objects.select_related('user').all()
+    }
+    return render(request, 'pages/loan.html', context)
+
+@login_required
+@user_passes_test(is_admin_or_staff)
+def update_loan(request):
+    if request.method == 'POST':
+        try:
+            loan_id = request.POST.get('loan_id')
+            paid_amount = request.POST.get('paid_amount')
+            status = request.POST.get('status')
+
+            print(f"Updating loan: ID={loan_id}, paid_amount={paid_amount}, status={status}")  # Debug print
+
+            if not all([loan_id, paid_amount, status]):
+                return JsonResponse({'error': 'Missing required fields'}, status=400)
+
+            loan_obj = Loan.objects.get(id=loan_id)
+            loan_obj.paid_amount = paid_amount
+            loan_obj.status = status
+            loan_obj.save()
+
+            print(f"Loan updated successfully: {loan_obj}")  # Debug print
+
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': 'Loan updated successfully'})
+            else:
+                messages.success(request, 'Loan updated successfully')
+                return redirect('loan')
+
+        except Loan.DoesNotExist:
+            error_msg = 'Loan not found'
+            print(f"Error: {error_msg}")  # Debug print
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'error': error_msg}, status=404)
+            else:
+                messages.error(request, error_msg)
+        except Exception as e:
+            error_msg = f'Error updating loan: {str(e)}'
+            print(f"Error: {error_msg}")  # Debug print
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'error': error_msg}, status=500)
+            else:
+                messages.error(request, error_msg)
+
+    return redirect('loan')
+
+@login_required
+@user_passes_test(is_admin_or_staff)
+def get_loan_data(request, loan_id):
+    try:
+        loan_obj = Loan.objects.get(id=loan_id)
+        data = {
+            'id': loan_obj.id,
+            'user_id': loan_obj.user_id,
+            'name': loan_obj.name,
+            'amount': str(loan_obj.amount),
+            'paid_amount': str(loan_obj.paid_amount),
+            'status': loan_obj.status
+        }
+        return JsonResponse(data)
+    except Loan.DoesNotExist:
+        return JsonResponse({'error': 'Loan not found'}, status=404)

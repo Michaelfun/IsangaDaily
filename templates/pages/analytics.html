@@ -347,7 +347,7 @@
                       <th rowspan="3" class="text-center bg-light">Tarehe</th>
                       <th colspan="5" class="text-center bg-info-subtle">POKELEWA</th>
                       <th colspan="5" class="text-center bg-success-subtle">TOKA</th>
-                      <th colspan="2" class="text-center bg-warning-subtle">UZWA</th>
+                      <th colspan="3" class="text-center bg-warning-subtle">UZWA</th>
                       <th colspan="3" class="text-center bg-danger-subtle">HARIBIKA</th>
                       <th colspan="3" class="text-center bg-primary-subtle">BAKI</th>
                       <th colspan="8" class="text-center bg-secondary-subtle">VITAFUNWA</th>
@@ -362,7 +362,7 @@
                       <th colspan="2" class="text-center bg-success-subtle">MABICHI</th>
                       <th colspan="3" class="text-center bg-success-subtle">MGANDO</th>
                       
-                      <th colspan="2" class="text-center bg-warning-subtle">MAZIWA</th>
+                      <th colspan="3" class="text-center bg-warning-subtle">MAZIWA</th>
                       
                       <th colspan="3" class="text-center bg-danger-subtle">MAZIWA</th>
                       
@@ -390,6 +390,7 @@
                       <th class="bg-success-subtle">WAFUGAJI</th>
                       
                       <!-- UZWA -->
+                      <th class="bg-warning-subtle">MABICHI</th>
                       <th class="bg-warning-subtle">MOTO</th>
                       <th class="bg-warning-subtle">MGANDO</th>
                       
@@ -405,7 +406,7 @@
                       
                       <!-- VITAFUNWA -->
                       <th class="bg-secondary-subtle">CHAPATI</th>
-                      <th class="bg-secondary-subtle">H.CAFE</th>
+                      <th class="bg-secondary-subtle">H.CAKE</th>
                       <th class="bg-secondary-subtle">MAANDAZI</th>
                       <th class="bg-secondary-subtle">SCONZI</th>
                       <th class="bg-secondary-subtle">VITUMBUA</th>
@@ -431,20 +432,21 @@
                       <td>{{ record.created_at__date|date:"d/m/Y" }}</td>
                       
                       <!-- POKELEWA -->
-                      <td>{{ record.supplier_data.wafugaji_received|default:0 }}</td>
-                      <td>{{ record.supplier_data.jikoni_received|default:0 }}</td>
-                      <td>{{ record.supplier_data.madukani_received|default:0 }}</td>
-                      <td>{{ record.pokelewa_jikoni_mgando|default:0 }}</td>
-                      <td>{{ record.pokelewa_madukani_mgando|default:0 }}</td>
+                      <td>{{ record.supplier_data.wafugaji_received_baridi|default:0 }}</td>
+                      <td>{{ record.supplier_data.jikoni_received_baridi|default:0 }}</td>
+                      <td>{{ record.supplier_data.madukani_received_baridi|default:0 }}</td>
+                      <td>{{ record.supplier_data.jikoni_received_mgando|default:0 }}</td>
+                      <td>{{ record.supplier_data.madukani_received_mgando|default:0 }}</td>
                       
                       <!-- TOKA -->
                       <td>{{ record.supplier_data.jikoni_transferred|default:0 }}</td>
                       <td>{{ record.supplier_data.madukani_transferred|default:0 }}</td>
-                      <td>{{ record.toka_jikoni_mgando|default:0 }}</td>
-                      <td>{{ record.toka_madukani_mgando|default:0 }}</td>
-                      <td>{{ record.uzwa_wafugaji|default:0 }}</td>
+                      <td>{{ record.supplier_data.jikoni_transferred_mgando|default:0 }}</td>
+                      <td>{{ record.supplier_data.madukani_transferred_mgando|default:0 }}</td>
+                      <td>{{ record.supplier_data.wafugaji_transferred_mgando|default:0 }}</td>
                       
                       <!-- UZWA -->
+                      <td>{{ record.uzwa_baridi|default:0 }}</td>
                       <td>{{ record.uzwa_moto|default:0 }}</td>
                       <td>{{ record.uzwa_mgando|default:0 }}</td>
                       
@@ -460,7 +462,7 @@
                       
                       <!-- VITAFUNWA -->
                       <td>{{ record.chapati|default:0 }}</td>
-                      <td>{{ record.hcafe|default:0 }}</td>
+                      <td>{{ record.hcake|default:0 }}</td>
                       <td>{{ record.maandazi|default:0 }}</td>
                       <td>{{ record.sconzi|default:0 }}</td>
                       <td>{{ record.vitumbua|default:0 }}</td>
@@ -500,6 +502,7 @@
                       <td><strong>{{ totals.uzwa_wafugaji|default:0 }}</strong></td>
 
                       <!-- UZWA Totals -->
+                      <td><strong>{{ totals.uzwa_mabichi|default:0 }}</strong></td>
                       <td><strong>{{ totals.uzwa_moto|default:0 }}</strong></td>
                       <td><strong>{{ totals.uzwa_mgando|default:0 }}</strong></td>
 
@@ -515,7 +518,7 @@
 
                       <!-- VITAFUNWA Totals -->
                       <td><strong>{{ totals.chapati|default:0 }}</strong></td>
-                      <td><strong>{{ totals.hcafe|default:0 }}</strong></td>
+                      <td><strong>{{ totals.hcake|default:0 }}</strong></td>
                       <td><strong>{{ totals.maandazi|default:0 }}</strong></td>
                       <td><strong>{{ totals.sconzi|default:0 }}</strong></td>
                       <td><strong>{{ totals.vitumbua|default:0 }}</strong></td>
@@ -622,10 +625,56 @@
         data: $(this).serialize(),
         success: function(response) {
           // Update the table and summary cards with the filtered data
-          // This will be handled by the backend
           location.reload();
         }
       });
+    });
+
+    function calculateTotals() {
+      // Wait for a moment to ensure all data is loaded
+      setTimeout(function() {
+        // Clear all totals first
+        $('#detailedAnalysisTable tfoot .total-cell').text('0.00');
+        
+        // Get all rows in tbody
+        const rows = $('#detailedAnalysisTable tbody tr');
+        
+        // Get number of columns (excluding date column)
+        const numCols = rows.first().find('td').length - 1;
+        
+        // Initialize array to store column totals
+        let columnTotals = new Array(numCols).fill(0);
+        
+        // Calculate totals
+        rows.each(function() {
+          $(this).find('td:not(:first-child)').each(function(index) {
+            // Get the value and convert to number
+            let value = $(this).text().trim();
+            value = value ? parseFloat(value) : 0;
+            
+            // Add to running total for this column
+            columnTotals[index] += value;
+          });
+        });
+        
+        // Update footer cells with totals
+        $('#detailedAnalysisTable tfoot .total-cell').each(function(index) {
+          $(this).text(columnTotals[index].toFixed(2));
+        });
+      }, 100); // Small delay to ensure table is fully rendered
+    }
+
+    // Calculate totals when page loads
+    calculateTotals();
+    
+    // Also calculate when window fully loads
+    $(window).on('load', function() {
+      calculateTotals();
+    });
+
+    // Recalculate when table data changes
+    $('#detailedAnalysisTable tbody').on('change', 'td', function() {
+      calculateTotals();
     });
   });
 </script>
