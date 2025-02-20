@@ -1152,10 +1152,216 @@ class SalesResource(resources.ModelResource):
 
 @login_required(login_url='/accounts/login/')
 def export_sales_excel(request):
-    sales_resource = SalesResource()
-    dataset = sales_resource.export()
-    response = HttpResponse(dataset.xlsx, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename="sales.xlsx"'
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="daily_analysis.xlsx"'
+    
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = "Daily Analysis"
+
+    # Get daily records first
+    daily_records = get_daily_records()
+
+    # Define colors matching web view
+    colors = {
+        'light': 'F8F9FA',
+        'info': 'CFE2FF',
+        'success': 'D1E7DD',
+        'warning': 'FFF3CD',
+        'danger': 'F8D7DA',
+        'primary': 'CCE5FF',
+        'secondary': 'E2E3E5'
+    }
+
+    # Add title and date (rows 1-2)
+    title = "ISANGA DAIRY - DETAILED DAILY ANALYSIS"
+    worksheet.merge_cells('A1:AJ1')
+    title_cell = worksheet['A1']
+    title_cell.value = title
+    title_cell.font = Font(bold=True, size=14)
+    title_cell.alignment = Alignment(horizontal='center', vertical='center')
+
+    date_str = f"Generated on: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+    worksheet.merge_cells('A2:AJ2')
+    date_cell = worksheet['A2']
+    date_cell.value = date_str
+    date_cell.font = Font(italic=True)
+    date_cell.alignment = Alignment(horizontal='center', vertical='center')
+
+    # First header row (row 4) - Main Categories
+    worksheet.append([''] * 36)  # Empty row 3
+    first_row = ['Tarehe']
+    first_row_merges = [
+        ('B4:F4', 'POKELEWA', colors['info']),
+        ('G4:K4', 'TOKA', colors['success']),
+        ('L4:M4', 'UZWA', colors['warning']),
+        ('N4:P4', 'HARIBIKA', colors['danger']),
+        ('Q4:S4', 'BAKI', colors['primary']),
+        ('T4:AA4', 'VITAFUNWA', colors['secondary']),
+        ('AB4:AJ4', 'FEDHA', colors['light'])
+    ]
+    worksheet.append(first_row + [''] * 35)  # Add empty cells for merging
+
+    # Apply merges and styles for first row
+    for merge_range, text, color in first_row_merges:
+        worksheet.merge_cells(merge_range)
+        merged_cell = worksheet[merge_range.split(':')[0]]
+        merged_cell.value = text
+        merged_cell.fill = PatternFill(start_color=color, end_color=color, fill_type='solid')
+        merged_cell.alignment = Alignment(horizontal='center', vertical='center')
+        merged_cell.font = Font(bold=True)
+
+    # Second header row (row 5) - Subcategories
+    second_row_merges = [
+        ('B5:D5', 'MABICHI', colors['info']),
+        ('E5:F5', 'MGANDO', colors['info']),
+        ('G5:H5', 'MABICHI', colors['success']),
+        ('I5:K5', 'MGANDO', colors['success']),
+        ('L5:M5', 'MAZIWA', colors['warning']),
+        ('N5:P5', 'MAZIWA', colors['danger']),
+        ('Q5:S5', 'MAZIWA', colors['primary']),
+        ('T5:AA5', 'BIDHAA', colors['secondary']),
+        ('AB5:AJ5', 'MAPATO/MATUMIZI', colors['light'])
+    ]
+    worksheet.append(['Tarehe'] + [''] * 35)
+
+    # Apply merges and styles for second row
+    for merge_range, text, color in second_row_merges:
+        worksheet.merge_cells(merge_range)
+        merged_cell = worksheet[merge_range.split(':')[0]]
+        merged_cell.value = text
+        merged_cell.fill = PatternFill(start_color=color, end_color=color, fill_type='solid')
+        merged_cell.alignment = Alignment(horizontal='center', vertical='center')
+        merged_cell.font = Font(bold=True)
+
+    # Third header row (row 6) - Detailed headers
+    third_row_headers = [
+        'Tarehe',
+        # POKELEWA
+        'WAFUGAJI', 'JIKONI', 'MADUKANI', 'JIKONI', 'MADUKANI',
+        # TOKA
+        'JIKONI', 'MADUKANI', 'JIKONI', 'MADUKANI', 'WAFUGAJI',
+        # UZWA
+        'MABICHI','MOTO', 'MGANDO',
+        # HARIBIKA
+        'MABICHI', 'MOTO', 'MGANDO',
+        # BAKI
+        'MABICHI', 'MOTO', 'MGANDO',
+        # VITAFUNWA
+        'CHAPATI', 'H.CAKE', 'MAANDAZI', 'SCONZI', 'VITUMBUA', 'MIKATE', 'MAYAI', 'BAGIA',
+        # FEDHA
+        'MAUZO', 'HALISI', 'MATUMIZI', 'CASH', 'BARIDI', 'MOTO', 'MGANDO', 'VITAFUNWA', 'TOFAUTI'
+    ]
+    worksheet.append(third_row_headers)
+
+    # Style third row
+    for cell in worksheet[6]:
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+        # Set background color based on column group
+        col_idx = cell.column - 1
+        if col_idx < 1:  # Tarehe
+            color = colors['light']
+        elif col_idx < 6:  # POKELEWA
+            color = colors['info']
+        elif col_idx < 11:  # TOKA
+            color = colors['success']
+        elif col_idx < 13:  # UZWA
+            color = colors['warning']
+        elif col_idx < 16:  # HARIBIKA
+            color = colors['danger']
+        elif col_idx < 19:  # BAKI
+            color = colors['primary']
+        elif col_idx < 27:  # VITAFUNWA
+            color = colors['secondary']
+        else:  # FEDHA
+            color = colors['light']
+        cell.fill = PatternFill(start_color=color, end_color=color, fill_type='solid')
+
+    # Add data rows with styling
+    row_num = 7
+    for record in daily_records:
+        row = [
+            record['created_at__date'].strftime('%d/%m/%Y'),
+            # POKELEWA
+            record['supplier_data']['wafugaji_received'],
+            record['supplier_data']['jikoni_received'],
+            record['supplier_data']['madukani_received'],
+            record['pokelewa_jikoni_mgando'],
+            record['pokelewa_madukani_mgando'],
+            # TOKA
+            record['supplier_data']['jikoni_transferred'],
+            record['supplier_data']['madukani_transferred'],
+            record['toka_jikoni_mgando'],
+            record['toka_madukani_mgando'],
+            record['uzwa_wafugaji'],
+            # UZWA
+            record['uzwa_baridi'],
+            record['uzwa_moto'],
+            record['uzwa_mgando'],
+            # HARIBIKA
+            record['haribika_mabichi'],
+            record['haribika_moto'],
+            record['haribika_mgando'],
+            # BAKI
+            record['baki_mabichi'],
+            record['baki_moto'],
+            record['baki_mgando'],
+            # VITAFUNWA
+            record['chapati'],
+            record['hcake'],
+            record['maandazi'],
+            record['sconzi'],
+            record['vitumbua'],
+            record['mikate'],
+            record['mayai'],
+            record['bagia'],
+            # FEDHA
+            record['mauzo'],
+            record['halisi'],
+            record['expenses'],
+            record['cash'],
+            record['baridi'],
+            record['moto'],
+            record['mgando'],
+            record['vitafunwa_total'],
+            record['difference']
+        ]
+        worksheet.append(row)
+        
+        # Style data cells
+        for cell in worksheet[row_num]:
+            cell.alignment = Alignment(horizontal='center', vertical='center')
+            cell.border = Border(
+                left=Side(style='thin'),
+                right=Side(style='thin'),
+                top=Side(style='thin'),
+                bottom=Side(style='thin')
+            )
+            # Format numbers
+            if isinstance(cell.value, (int, float)):
+                cell.number_format = '#,##0.00'
+        row_num += 1
+
+    # Auto-adjust column widths
+    for column in worksheet.columns:
+        max_length = 0
+        column = [cell for cell in column]
+        for cell in column:
+            if isinstance(cell, MergedCell):
+                continue
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = (max_length + 2)
+        worksheet.column_dimensions[get_column_letter(column[0].column)].width = adjusted_width
+
+    # Freeze panes to keep headers visible
+    worksheet.freeze_panes = 'A7'
+
+    workbook.save(response)
     return response
 
 @login_required(login_url='/accounts/login/')
@@ -1361,13 +1567,13 @@ def export_daily_analysis_excel(request):
         # TOKA
         'JIKONI', 'MADUKANI', 'JIKONI', 'MADUKANI', 'WAFUGAJI',
         # UZWA
-        'MOTO', 'MGANDO',
+        'MABICHI','MOTO', 'MGANDO',
         # HARIBIKA
         'MABICHI', 'MOTO', 'MGANDO',
         # BAKI
         'MABICHI', 'MOTO', 'MGANDO',
         # VITAFUNWA
-        'CHAPATI', 'H.CAFE', 'MAANDAZI', 'SCONZI', 'VITUMBUA', 'MIKATE', 'MAYAI', 'BAGIA',
+        'CHAPATI', 'H.CAKE', 'MAANDAZI', 'SCONZI', 'VITUMBUA', 'MIKATE', 'MAYAI', 'BAGIA',
         # FEDHA
         'MAUZO', 'HALISI', 'MATUMIZI', 'CASH', 'BARIDI', 'MOTO', 'MGANDO', 'VITAFUNWA', 'TOFAUTI'
     ]
@@ -1397,7 +1603,7 @@ def export_daily_analysis_excel(request):
             color = colors['light']
         cell.fill = PatternFill(start_color=color, end_color=color, fill_type='solid')
 
-    # Add data rows with styling
+    # Add data rows
     row_num = 7
     for record in daily_records:
         row = [
@@ -1415,6 +1621,7 @@ def export_daily_analysis_excel(request):
             record['toka_madukani_mgando'],
             record['uzwa_wafugaji'],
             # UZWA
+            record['uzwa_baridi'],
             record['uzwa_moto'],
             record['uzwa_mgando'],
             # HARIBIKA
@@ -1427,7 +1634,7 @@ def export_daily_analysis_excel(request):
             record['baki_mgando'],
             # VITAFUNWA
             record['chapati'],
-            record['hcafe'],
+            record['hcake'],
             record['maandazi'],
             record['sconzi'],
             record['vitumbua'],
@@ -1447,18 +1654,9 @@ def export_daily_analysis_excel(request):
         ]
         worksheet.append(row)
         
-        # Style data cells
+        # Style the data cells
         for cell in worksheet[row_num]:
             cell.alignment = Alignment(horizontal='center', vertical='center')
-            cell.border = Border(
-                left=Side(style='thin'),
-                right=Side(style='thin'),
-                top=Side(style='thin'),
-                bottom=Side(style='thin')
-            )
-            # Format numbers
-            if isinstance(cell.value, (int, float)):
-                cell.number_format = '#,##0.00'
         row_num += 1
 
     # Auto-adjust column widths
@@ -1466,8 +1664,6 @@ def export_daily_analysis_excel(request):
         max_length = 0
         column = [cell for cell in column]
         for cell in column:
-            if isinstance(cell, MergedCell):
-                continue
             try:
                 if len(str(cell.value)) > max_length:
                     max_length = len(str(cell.value))
@@ -1475,9 +1671,6 @@ def export_daily_analysis_excel(request):
                 pass
         adjusted_width = (max_length + 2)
         worksheet.column_dimensions[get_column_letter(column[0].column)].width = adjusted_width
-
-    # Freeze panes to keep headers visible
-    worksheet.freeze_panes = 'A7'
 
     workbook.save(response)
     return response
@@ -1547,6 +1740,11 @@ def get_daily_records(sales_queryset=None):
         # UZWA (using sold values)
         uzwa_baridi=Coalesce(
             Sum('sold', filter=Q(product__name='Maziwa Baridi')), 
+            Value(0), 
+            output_field=FloatField()
+        ),
+        uzwa_wafugaji=Coalesce(
+            Sum('sold', filter=Q(product__name='Maziwa Wafugaji')), 
             Value(0), 
             output_field=FloatField()
         ),
@@ -1776,7 +1974,7 @@ def get_daily_records(sales_queryset=None):
         ))
     )
 
-    # Convert supplier data to dictionary for easy lookup
+    # Convert to dictionary for easier lookup
     supplier_data_dict = {
         record['date']: {
             'wafugaji_received': record['wafugaji_received'],
@@ -1817,9 +2015,8 @@ def register_user(request):
         if form.is_valid():
             user = form.save()
             group = form.cleaned_data['group']
-            shop = form.cleaned_data['shop']
             user.groups.add(group)
-            UserProfile.objects.create(user=user, shop=shop)
+            UserProfile.objects.create(user=user, shop=form.cleaned_data['shop'])
             messages.success(request, 'User created successfully!')
             return redirect('user_list')
     else:
